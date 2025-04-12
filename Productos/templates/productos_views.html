@@ -77,8 +77,9 @@
                     <td>${{ producto.precio }}</td>
                     <td>{{ producto.stock }}</td>
                     <td>
-                        <button id="boton" class="btn btn-info" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
-                    </td>
+                        <button id="boton" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
+                        <button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button>
+                    </td>                    
                 </tr>
                 {% endfor %}
             </tbody>
@@ -121,7 +122,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        
         document.addEventListener("DOMContentLoaded", function() {
             const links = document.querySelectorAll('.sidebar a');
             let activeLink = document.querySelector('.activo');  // Enlace activo inicial
@@ -150,6 +153,24 @@
             // Mostrar el modal
             var myModal = new bootstrap.Modal(document.getElementById('productoModal'));
             myModal.show();
+        }
+
+        function confirmarEliminacion(idProducto) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let baseUrl = "{% url 'eliminar_producto' 0 %}".replace("0", idProducto);
+                    window.location.href = baseUrl;
+                }
+            });
         }
     </script>
 </body>

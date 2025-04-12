@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404, redirect
 from .models import Producto
 
 # Create your views here.
@@ -14,7 +14,6 @@ def agregar(request):
         stock = request.POST['stock']
         imagen = request.FILES.get('imagen', None)
         
-        # Crear el producto con el siguiente ID disponible
         producto = Producto.objects.create(
             nombre=nombre,
             descripcion=descripcion,
@@ -23,10 +22,15 @@ def agregar(request):
             imagen=imagen
         )
         
-        return redirect('productos')  # Redirige a la lista de productos o donde desees
+        return redirect('productos_views') 
 
     return render(request, 'add_prod.html')
 
 def editar(request):
     productos = Producto.objects.all()
     return render(request, 'mod_prod.html', {'productos': productos})
+
+def eliminar_producto(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    producto.delete()
+    return redirect('productos_views')
