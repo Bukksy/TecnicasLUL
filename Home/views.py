@@ -11,17 +11,19 @@ def login(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            auth_login(request, user)  # Inicia sesión
-            return redirect('inicio')  # Entra a la página principal
+            auth_login(request, user)  
+            return redirect('inicio')  
         else:
-            messages.error(request, "Usuario o contraseña incorrectos")  # Mensaje de error
+            messages.error(request, "Usuario o contraseña incorrectos") 
+
+        return redirect('login')
 
     return render(request, 'login.html')
 
 @login_required
 def inicio(request):
     if not request.user.is_authenticated:
-        return redirect('login')  # Si no está autenticado, redirige a login
+        return redirect('login')
 
     return render(request, 'inicio.html')
 

@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -101,6 +102,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+LOGIN_URL = 'login'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db' 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
 # Internationalization
