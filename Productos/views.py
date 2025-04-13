@@ -32,7 +32,25 @@ def agregar(request):
 @login_required
 def editar(request):
     productos = Producto.objects.all()
+    if request.method == 'POST':
+        producto_id = request.POST.get('producto_id')
+        return redirect('editar_producto', id=producto_id)
     return render(request, 'mod_prod.html', {'productos': productos})
+
+@login_required
+def editar_producto(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    if request.method == 'POST':
+        producto.nombre = request.POST['nombre']
+        producto.descripcion = request.POST['descripcion']
+        producto.precio = request.POST['precio']
+        producto.stock = request.POST['stock']
+        if request.FILES.get('imagen'):
+            producto.imagen = request.FILES['imagen']
+        producto.save()
+        return redirect('productos_views')
+
+    return render(request, 'edit_prod_form.html', {'producto': producto})
 
 @login_required
 def eliminar_producto(request, id):
