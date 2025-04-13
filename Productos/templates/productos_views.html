@@ -32,7 +32,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <!-- Si el usuario está logueado, muestra el saludo y el menú desplegable -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Hola, {{ user.username }}
@@ -57,7 +56,7 @@
     <div class="sidebar">
         <a href="{% url 'inicio' %}">Inicio</a>
         <a href="{% url 'productos_views' %}" class="activo">Productos</a>
-        <a href="#">Reclamos</a>
+        <a href="#">Dashboard</a>
     </div>
 
     <div class="main-content" style="text-align: center;">
@@ -65,14 +64,18 @@
         <hr>
     </div>
 
-    <div class="container-fluid">
-        <table>
+    <div class="container-fluid" style="display: flex; justify-content: center; align-items: center;">
+        <table style="width: 1200px; margin-left: 250px;">
             <thead>
                 <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Precio</th>
+                    <th>Rareza</th>
+                    <th>Categoria</th>
                     <th>Stock</th>
+                    <th>Detalles</th>
+                    <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,11 +84,13 @@
                     <td>{{ producto.nombre }}</td>
                     <td>{{ producto.descripcion }}</td>
                     <td>${{ producto.precio }}</td>
-                    <td>{{ producto.stock }}</td>
-                    <td>
-                        <button id="boton" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
-                        <button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button>
-                    </td>                    
+                    <td></td>
+                    <td></td>
+                    <td style="width: 10px;">{{ producto.stock }}</td>
+                    <td style="width: 105px;">
+                        <button class="btn btn-warning" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
+                    </td> 
+                    <td style="width: 20px;"><button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button></td>                   
                 </tr>
                 {% endfor %}
             </tbody>
