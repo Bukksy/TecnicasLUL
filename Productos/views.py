@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404, redirect
-from .models import Producto
+from .models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden
 from django.contrib.auth.decorators import login_required
+from django.db import transaction, models
+from django.contrib.auth.models import User
 
 # Create your views here.
 @login_required
@@ -57,3 +59,63 @@ def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('productos_views')
+
+
+@login_required
+def ver_carrito(request):
+    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+    items = carrito.items.select_related('producto')
+    total = sum(item.subtotal() for item in items)
+    return render(request, 'carrito_view.html', {'items': items, 'total': total})
+
+
+@login_required
+def agregar_al_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+
+    item, creado = ItemCarrito.objects.get_or_create(carrito=carrito, producto=producto)
+    if not creado:
+        item.cantidad += 1
+    item.save()
+
+    return redirect('ver_carrito')
+
+
+@login_required
+def quitar_del_carrito(request, item_id):
+    item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
+    item.delete()
+    return redirect('ver_carrito')
+
+@login_required
+def finalizar_compra(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    items = carrito.items.select_related('producto')
+
+    if not items.exists():
+        return redirect('ver_carrito')
+
+    total = sum(item.subtotal() for item in items)
+
+    # Crear la orden
+    orden = OrdenCompra.objects.create(usuario=request.user, total=total)
+
+    # Crear los detalles
+    for item in items:
+        DetalleOrden.objects.create(
+            orden=orden,
+            producto=item.producto,
+            cantidad=item.cantidad,
+            precio_unitario=item.producto.precio
+        )
+
+    # Vaciar el carrito
+    items.delete()
+
+    return render(request, 'orden_exitosa.html', {'total': total})
+
+@login_required
+def historial_ordenes(request):
+    ordenes = OrdenCompra.objects.filter(usuario=request.user).order_by('-fecha')
+    return render(request, 'historial_ordenes.html', {'ordenes': ordenes})

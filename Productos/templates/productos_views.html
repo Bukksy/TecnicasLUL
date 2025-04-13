@@ -54,10 +54,12 @@
     </nav>
 
     <div class="sidebar">
-        <a href="{% url 'inicio' %}">Inicio</a>
-        <a href="{% url 'productos_views' %}" class="activo">Productos</a>
-        <a href="{% url 'resumenInventario' %}">Dashboard</a>
+        <a href="{% url 'inicio' %}" {% if request.path == '/inicio/' %}class="activo"{% endif %}>Inicio</a>
+        <a href="{% url 'productos_views' %}" {% if request.path == '/productos/' %}class="activo"{% endif %}>Productos</a>
+        <a href="{% url 'resumenInventario' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Dashboard</a>
+        <a href="{% url 'historial_ordenes' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Historial de ordenes</a>></a>
     </div>
+
 
     <div class="main-content" style="text-align: center;">
         <h1 class="titulos">Productos</h1>
@@ -85,12 +87,16 @@
                     <td>{{ producto.descripcion }}</td>
                     <td>${{ producto.precio }}</td>
                     <td></td>
-                    <td></td>
+                    <td></td> 
                     <td style="width: 10px;">{{ producto.stock }}</td>
-                    <td style="width: 105px;">
+                    <td style="width: 240px; display: flex; gap: 5px;">
                         <button class="btn btn-warning" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
-                    </td> 
-                    <td style="width: 20px;"><button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button></td>                   
+                    
+                        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-success">Comprar</a>
+                    
+                        <button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button>
+                    </td>
+                                     
                 </tr>
                 {% endfor %}
             </tbody>
