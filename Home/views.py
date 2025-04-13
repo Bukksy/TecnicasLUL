@@ -1,7 +1,12 @@
+import openpyxl
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from Productos.models import Producto
+from django.db.models import Avg, Sum
+import json
 
 def login(request):
     if request.method == "POST":
@@ -30,3 +35,46 @@ def inicio(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def resumenInventario(request):
+    productos = Producto.objects.all()
+
+    total_productos = productos.count()
+    stock_total = productos.aggregate(Sum('stock'))['stock__sum'] or 0
+    precio_promedio = productos.aggregate(Avg('precio'))['precio__avg'] or 0
+
+    labels = json.dumps([p.nombre for p in productos])
+    datos_stock = json.dumps([p.stock for p in productos])
+
+    context = {
+        'productos': productos,
+        'total_productos': total_productos,
+        'stock_total': stock_total,
+        'precio_promedio': round(precio_promedio, 2),
+        'labels': labels,
+        'datos_stock': datos_stock,
+    }
+
+    return render(request, 'resumenInventario.html', context)
+
+@login_required
+def exportar_excel(request):
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = 'Productos'
+
+    headers = ['ID', 'Nombre', 'Descripción', 'Precio', 'Stock']
+    sheet.append(headers)
+
+
+    productos = Producto.objects.all()
+    for producto in productos:
+        sheet.append([producto.id, producto.nombre, producto.descripcion, producto.precio, producto.stock])
+
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=productos.xlsx'
+
+    wb.save(response)
+    return response
