@@ -4,30 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style-editar.css' %}">
 </head>
 <body>
-    <h2>Editar Producto</h2>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label>Nombre:</label>
-        <input type="text" name="nombre" value="{{ producto.nombre }}" required><br>
+    <div class="contenedor2">
+        <div class="formulario-editar" style="text-align: center;">
+            <h1>Editar Producto</h1>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label>Nombre:</label>
+                <br>
+                <input type="text" name="nombre" value="{{ producto.nombre }}" required><br>
 
-        <label>Descripción:</label>
-        <textarea name="descripcion" required>{{ producto.descripcion }}</textarea><br>
+                <br>
 
-        <label>Precio:</label>
-        <input type="number" name="precio" value="{{ producto.precio }}" required><br>
+                <label>Descripción:</label>
+                <br>
+                <textarea style="width: 350px; height: 100px; text-align: center;" name="descripcion" required>{{ producto.descripcion }}</textarea><br>
 
-        <label>Stock:</label>
-        <input type="number" name="stock" value="{{ producto.stock }}" required><br>
+                <br>
+                
+                <label>Precio:</label>
+                <br>
+                <input type="number" name="precio" value="{{ producto.precio }}" required><br>
 
-        <label>Imagen:</label>
-        {% if producto.imagen %}
-            <img src="{{ producto.imagen.url }}" width="100"><br>
-        {% endif %}
-        <input type="file" name="imagen"><br>
+                <br>
+                
+                <label>Stock:</label>
+                <br>
+                <input type="number" name="stock" value="{{ producto.stock }}" required><br>
 
-        <button type="submit">Guardar cambios</button>
-    </form>
+                <br>
+                
+                <label>Imagen:</label>
+                
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" width="200"><br>
+                {% endif %}
+                <input type="file" name="imagen"><br>
+<hr>
+                <button type="submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
