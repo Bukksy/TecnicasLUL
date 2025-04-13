@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from Productos.models import Producto
+from Productos.models import Producto, DetalleOrden
 from django.db.models import Avg, Sum
 import json
 
@@ -46,6 +46,13 @@ def resumenInventario(request):
 
     labels = json.dumps([p.nombre for p in productos])
     datos_stock = json.dumps([p.stock for p in productos])
+    productos_mas_vendidos = (
+        DetalleOrden.objects
+        .values('producto__nombre')
+        .annotate(total_vendidos=Sum('cantidad'))
+        .order_by('-total_vendidos')[:5]
+    )
+
 
     context = {
         'productos': productos,
@@ -54,6 +61,7 @@ def resumenInventario(request):
         'precio_promedio': round(precio_promedio, 2),
         'labels': labels,
         'datos_stock': datos_stock,
+        'productos_mas_vendidos': productos_mas_vendidos
     }
 
     return render(request, 'resumenInventario.html', context)

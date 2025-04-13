@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path(' ', views.productos_view, name="productos_views"),
+    path('', views.productos_view, name="productos_views"),
     path('agregar/', views.agregar, name='agregar'),
     path('editar/', views.editar, name='editar'),
     path('editar/<int:id>/', views.editar_producto, name='editar_producto'),
@@ -12,5 +12,7 @@ urlpatterns = [
     path('carrito/quitar/<int:item_id>/', views.quitar_del_carrito, name='quitar_del_carrito'),
     path('carrito/finalizar/', views.finalizar_compra, name='finalizar_compra'),
     path('historial/', views.historial_ordenes, name='historial_ordenes'),
+    path('limpiar-historial/', views.limpiar_historial_compras, name='limpiar_historial'),
+
 
 ]

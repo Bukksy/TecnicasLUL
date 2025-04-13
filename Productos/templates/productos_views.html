@@ -36,12 +36,14 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Hola, {{ user.username }}
                             </a>
+                            
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
                                     <a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a>
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown"><a href="{% url 'ver_carrito' %}"> carrito</a></li>
                     {% else %}
                         <!-- Si el usuario no está logueado, muestra el enlace de login -->
                         <li class="nav-item">
@@ -90,11 +92,15 @@
                     <td></td> 
                     <td style="width: 10px;">{{ producto.stock }}</td>
                     <td style="width: 240px; display: flex; gap: 5px;">
-                        <button class="btn btn-warning" onclick="openModal({{ producto.id }}, '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
+                        <button class="btn btn-warning" onclick="openModal('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
                     
-                        <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-success">Comprar</a>
+                        <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" style="display: flex; gap: 5px;">
+                            {% csrf_token %}
+                            <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required style="width: 60px;">
+                            <button type="submit" class="btn btn-success">Comprar</button>
+                        </form>
                     
-                        <button class="btn btn-danger" onclick="confirmarEliminacion({{ producto.id }})">Eliminar</button>
+                        <button class="btn btn-danger" onclick="confirmarEliminacion('{{ producto.id }}')">Eliminar</button>
                     </td>
                                      
                 </tr>
@@ -141,7 +147,48 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        
+        function agregarAlCarrito(event, productoId) {
+            event.preventDefault();
+            const form = event.target;
+            const cantidad = form.querySelector('input[name="cantidad"]').value;
+
+            fetch(`/carrito/agregar/${productoId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({
+                    cantidad: cantidad
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.mensaje) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto añadido',
+                        text: data.mensaje,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else if (data.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al agregar al carrito:', error);
+                alert('Hubo un error al agregar al carrito.');
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const links = document.querySelectorAll('.sidebar a');
             let activeLink = document.querySelector('.activo');  // Enlace activo inicial

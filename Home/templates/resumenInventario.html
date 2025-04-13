@@ -11,31 +11,31 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <style>
-        /* Reducción del espacio del gráfico */
+        /* Style del gráfico */
         .chart-container {
             position: relative;
-            height: 250px; /* Menos altura para el gráfico */
-            width: 80%; /* Ajuste para que no ocupe tanto espacio */
+            height: 250px; 
+            width: 80%; 
             margin: 0 auto;
         }
 
         /* Estilo minimalista de las tarjetas */
         .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra más ligera */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
             border: none;
-            border-radius: 8px; /* Bordes redondeados */
+            border-radius: 8px; 
         }
 
         .card-body {
-            padding: 1rem; /* Menos espacio dentro de la tarjeta */
+            padding: 1rem; 
         }
 
         .card-title {
-            font-size: 1.2rem; /* Tamaño de texto más pequeño */
+            font-size: 1.2rem; 
         }
 
         .title {
-            font-size: 1.8rem; /* Titulo más pequeño */
+            font-size: 1.8rem; 
             text-align: center;
         }
 
@@ -87,9 +87,10 @@
 
     <!-- Barra Lateral -->
     <div class="sidebar">
-        <a href="#">Inicio</a>
-        <a href="{% url 'productos_views' %}">Productos</a>
-        <a href="{% url 'resumenInventario' %}" class="activo">Dashboard</a>
+        <a href="{% url 'inicio' %}" {% if request.path == '/inicio/' %}class="activo"{% endif %}>Inicio</a>
+        <a href="{% url 'productos_views' %}" {% if request.path == '/productos/' %}class="activo"{% endif %}>Productos</a>
+        <a href="{% url 'resumenInventario' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Dashboard</a>
+        <a href="{% url 'historial_ordenes' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Historial de ordenes</a>></a>
     </div>
 
     <!-- Contenido Principal -->
@@ -129,9 +130,28 @@
         <div class="chart-container mb-5">
             <canvas id="graficoStock"></canvas>
         </div>
+        <h2 class="mb-4">Productos más vendidos</h2>
 
-        <!-- Tabla de productos -->
-        <!-- Tabla de productos con botón de exportación -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad Vendida</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in productos_mas_vendidos %}
+        <tr>
+            <td>{{ item.producto__nombre }}</td>
+            <td>{{ item.total_vendidos }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No hay ventas registradas todavía.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 <div class="table-responsive">
     <!-- Menú de 3 puntitos arriba a la derecha -->
     <div class="d-flex justify-content-end mb-2 me-3">
