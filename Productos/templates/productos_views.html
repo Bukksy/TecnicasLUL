@@ -43,7 +43,6 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item dropdown"><a href="{% url 'ver_carrito' %}"> carrito</a></li>
                     {% else %}
                         <!-- Si el usuario no está logueado, muestra el enlace de login -->
                         <li class="nav-item">
@@ -56,10 +55,10 @@
     </nav>
 
     <div class="sidebar">
-        <a href="{% url 'inicio' %}" {% if request.path == '/inicio/' %}class="activo"{% endif %}>Inicio</a>
-        <a href="{% url 'productos_views' %}" {% if request.path == '/productos/' %}class="activo"{% endif %}>Productos</a>
-        <a href="{% url 'resumenInventario' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Dashboard</a>
-        <a href="{% url 'historial_ordenes' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Historial de ordenes</a>></a>
+        <a href="{% url 'inicio' %}">Inicio</a>
+        <a class="activo" href="{% url 'productos_views' %}">Productos</a>
+        <a href="{% url 'resumenInventario' %}">Dashboard</a>
+        <a href="{% url 'historial_ordenes' %}">Historial de ordenes</a>></a>
     </div>
 
 
@@ -236,6 +235,31 @@
                 }
             });
         }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const links = document.querySelectorAll('.sidebar a');
+            let activeLink = document.querySelector('.activo');  // Enlace activo inicial
+    
+            // Cambiar el fondo del enlace cuando el mouse pasa sobre otros enlaces
+            links.forEach(link => {
+                link.addEventListener('mouseover', function() {
+                    // Quitar el fondo activo de todos los enlaces
+                    links.forEach(l => l.classList.remove('activo'));
+                    
+                    // Agregar el fondo al enlace sobre el que se pasa el mouse
+                    link.classList.add('activo');
+                });
+    
+                // Cuando el mouse sale de un enlace, el fondo vuelve al enlace "Inicio"
+                link.addEventListener('mouseleave', function() {
+                    // Volver el fondo a "Inicio" (el primer enlace)
+                    links.forEach(l => l.classList.remove('activo'));
+                    activeLink.classList.add('activo');  
+                    
+                });
+            });
+        });
     </script>
 </body>
 </html>

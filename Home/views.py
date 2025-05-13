@@ -6,7 +6,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from Productos.models import Producto, DetalleOrden
 from django.db.models import Avg, Sum
+from django.contrib.auth.decorators import user_passes_test
 import json
+
+def es_admin(user):
+    return user.is_staff
 
 def login(request):
     if request.method == "POST":
@@ -27,16 +31,17 @@ def login(request):
 
 @login_required
 def inicio(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    return render(request, 'inicio.html')
+    if request.user.is_staff:
+        return render(request, 'inicio.html')
+    else:
+        return redirect('InicioPagina:inicio')
 
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 @login_required
+@user_passes_test(es_admin)
 def resumenInventario(request):
     productos = Producto.objects.all()
 
@@ -67,6 +72,7 @@ def resumenInventario(request):
     return render(request, 'resumenInventario.html', context)
 
 @login_required
+@user_passes_test(es_admin)
 def exportar_excel(request):
     wb = openpyxl.Workbook()
     sheet = wb.active

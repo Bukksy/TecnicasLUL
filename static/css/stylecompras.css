@@ -1,0 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap");
+
+
+h3{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.submenu {
+    text-align: center;
+      display: none;
+      flex-direction: column;
+      margin-left: 15px;
+      width: 200px;
+      gap: 10px;
+    }
+
+    .submenu a {
+      padding: 8px 10px;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px white;
+      border-radius: 10px;
+      background-color: white;
+      color: #1e0e3e;
+    }
+
+    td{
+      height: 30px;
+    }
+
+.main-content {
+    margin-left: 250px; /* Deja espacio para la barra de navegación fija */
+    height: calc(100vh - 70px);  /* Resta la altura de la navbar */
+    overflow-y: auto;  /* Permite el scroll solo en esta sección */
+}
+
+.container-fluid {
+    max-height: calc(100vh - 70px);  /* Máxima altura igual al tamaño de la ventana menos el navbar */
+    overflow-y: auto;  /* Permite el desplazamiento vertical solo en esta sección */
+}
+
+.floating-cart {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ffc107;
+    color: black;
+    border-radius: 50%;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transition: transform 0.2s;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.floating-cart:hover {
+    transform: scale(1.1);
+}

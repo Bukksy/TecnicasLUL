@@ -1,0 +1,102 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 500px;
+  gap: 10px;
+
+  > div {
+    flex: 0 0 230px;
+    border-radius: 0.5rem;
+    transition: 0.5s ease-in-out;
+    cursor: pointer;
+    box-shadow: 1px 5px 15px #1e0e3e;
+    position: relative;
+    overflow: hidden;
+
+    &:nth-of-type(1) {
+      background: url("/static/img/share-fb.jpg")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(2) {
+      background: url("/static/img/D_NQ_NP_789675-MLC76554848379_052024-O-pokemon-tcg-sobre-10-cartas-edicion-151-espanol-original.webp")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(3) {
+      background: url("/static/img/A17788.avif")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(4) {
+      background: url("/static/img/logotipo-lujo-tcg-corona-iniciales-elegantes-logotipo-letra-tcg-marcas-exclusivas-carta-monograma-tcg-empresas-alta-gama_1101554-51523.avif")
+        no-repeat 50% / cover;
+    }
+
+    .content {
+      font-size: 1.5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      opacity: 0;
+      flex-direction: column;
+      height: 100%;
+      justify-content: flex-end;
+      background: rgb(2, 2, 46);
+      background: linear-gradient(
+        0deg,
+        rgba(2, 2, 46, 0.6755077030812324) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: translatey(100%);
+      transition: opacity 0.5s ease-in-out, transform 0.5s 0.2s;
+      visibility: hidden;
+
+      span {
+        display: block;
+        margin-top: 5px;
+        font-size: 1.2rem;
+      }
+    }
+
+    &:hover {
+      flex: 0 0 250px;
+      box-shadow: 1px 3px 15px #7645d8;
+      transform: translatey(-30px);
+    }
+
+    &:hover .content {
+      opacity: 1;
+      transform: translatey(0%);
+      visibility: visible;
+    }
+  }
+}
+
+h3{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.submenu {
+    text-align: center;
+      display: none;
+      flex-direction: column;
+      margin-left: 15px;
+      width: 200px;
+      gap: 10px;
+    }
+
+    .submenu a {
+      padding: 8px 10px;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px white;
+      border-radius: 10px;
+      background-color: white;
+      color: #1e0e3e;
+    }

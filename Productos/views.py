@@ -5,14 +5,19 @@ from django.db import transaction, models
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
+from django.contrib.auth.decorators import user_passes_test
 
-# Create your views here.
+def es_admin(user):
+    return user.is_staff
+
 @login_required
+@user_passes_test(es_admin)
 def productos_view(request):
     productos = Producto.objects.all()
     return render(request, 'productos_views.html', {'productos': productos})
 
 @login_required
+@user_passes_test(es_admin)
 def agregar(request):
     if request.method == 'POST':
         nombre = request.POST['nombre']
@@ -34,6 +39,7 @@ def agregar(request):
     return render(request, 'add_prod.html')
 
 @login_required
+@user_passes_test(es_admin)
 def editar(request):
     productos = Producto.objects.all()
     if request.method == 'POST':
@@ -42,6 +48,7 @@ def editar(request):
     return render(request, 'mod_prod.html', {'productos': productos})
 
 @login_required
+@user_passes_test(es_admin)
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     if request.method == 'POST':
@@ -57,6 +64,7 @@ def editar_producto(request, id):
     return render(request, 'edit_prod_form.html', {'producto': producto})
 
 @login_required
+@user_passes_test(es_admin)
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
@@ -86,7 +94,7 @@ def agregar_al_carrito(request, producto_id):
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
     
     item, created = ItemCarrito.objects.get_or_create(carrito=carrito, producto=producto)
-    item.cantidad += cantidad
+    item.cantidad = cantidad
     item.save()
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -131,12 +139,14 @@ def finalizar_compra(request):
     return render(request, 'orden_exitosa.html', {'total': total})
 
 @login_required
+@user_passes_test(es_admin)
 def historial_ordenes(request):
     ordenes = OrdenCompra.objects.filter(usuario=request.user).order_by('-fecha')
     return render(request, 'historial_ordenes.html', {'ordenes': ordenes})
 
 
 @staff_member_required
+@user_passes_test(es_admin)
 def limpiar_historial_compras(request):
     DetalleOrden.objects.all().delete()
     OrdenCompra.objects.all().delete()
