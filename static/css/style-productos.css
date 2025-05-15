@@ -13,6 +13,11 @@
     font-size: 20px;
 }
 
+.modal-body {
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
 .titulos{
     font-family: 'Fuente2';
     font-size: 80px;
@@ -21,22 +26,83 @@
     -webkit-text-fill-color: transparent;
 }
 
-.top-navbar {
+/* Sidebar fijo */
+body {
+    display: flex;
+    margin-top: 50px;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.sidebar {
+    width: 240px;
+    background-color: #343a40;
+    color: #fff;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1030;
+    top: 56px; /* Altura navbar */
+    bottom: 0;
+    padding-top: 1rem;
+}
+.sidebar a {
+    color: #adb5bd;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.sidebar a:hover,
+.sidebar a.activo {
+    background-color: #495057;
+    color: #fff;
+    border-left-color: #0d6efd;
 }
 
-.sidebar {
-    position: fixed;
-    top: 56px; 
-    left: 0;
-    height: calc(100vh - 56px);
-    width: 250px;
-    background-color: #353434;
-    padding-top: 20px;
-    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+.main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 56px);
+}
+
+/* Tarjetas estilo bootstrap */
+.card-title {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Tabla centrada */
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Export button */
+.export-btn {
+    margin-bottom: 1rem;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        top: 0;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 1rem;
+    }
 }
 
 .main-content {
@@ -144,5 +210,3 @@
 #modificar{
     background-color: orange;
 }
-
-    

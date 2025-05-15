@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'Productos',
     'InicioPagina',
     'VentaProductos',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

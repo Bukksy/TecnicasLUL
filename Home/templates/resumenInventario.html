@@ -1,233 +1,359 @@
 {% load static %}
+{% load humanize %}
+
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <style>
-        /* Style del gráfico */
-        .chart-container {
-            position: relative;
-            height: 250px; 
-            width: 80%; 
-            margin: 0 auto;
+        /* Ajustes extra para mejorar la estética sin tocar navbar porque ya tienes CSS */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 56px; /* para que el contenido no quede debajo del navbar fixed */
         }
-
-        /* Estilo minimalista de las tarjetas */
+        main.main-content {
+            padding: 2rem 3rem;
+            margin-left: 220px; /* espacio para sidebar fijo */
+            min-height: 100vh;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
+        }
+        h1, h2, h3 {
+            color: #343a40;
+            font-weight: 700;
+        }
         .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            border: none;
-            border-radius: 8px; 
+            border-radius: 12px;
+            transition: transform 0.3s ease;
         }
-
-        .card-body {
-            padding: 1rem; 
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
         }
-
-        .card-title {
-            font-size: 1.2rem; 
+        .table thead {
+            background-color: #343a40 !important;
+            color: #fff;
+            border-radius: 12px;
         }
-
-        .title {
-            font-size: 1.8rem; 
-            text-align: center;
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f1f3f5;
         }
-
-        /* Estilo para la tabla */
-        .table {
-            margin-top: 20px;
-            font-size: 0.9rem;
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
         }
-
-        .table th, .table td {
-            text-align: center;
+        .charts-row {
+            gap: 3rem;
         }
-
-        /* Botón de exportar */
+        .chart-container {
+            background: #fafafa;
+            max-width: 500px;
+            height: 450px;
+            margin: 0 auto;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgb(0 0 0 / 0.07);
+        }
         .export-btn {
-            margin-top: 20px;
+            box-shadow: 0 3px 8px rgb(13 110 253 / 0.4);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        .export-btn:hover {
+            background-color: #0a58ca;
+            box-shadow: 0 6px 15px rgb(10 88 202 / 0.6);
+        }
+        #graficoStock {
+            width: 100% !important;  /* ocupar todo el ancho del contenedor */
+            height: 100% !important; /* ocupar toda la altura definida */
+        }
+        .chart-circular-wrapper {
+            background-color: #f8f9fa; /* color gris clarito, el que usas en cards */
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-
-    <!-- Navbar Superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark top-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#" id="titulo">Logistic</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Hola, {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
-                            </ul>
-                        </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-4 me-1"></i> Hola, <strong>{{ user.username }}</strong>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="{% url 'login' %}">Login</a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Barra Lateral -->
-    <div class="sidebar">
-        <a href="{% url 'inicio' %}" {% if request.path == '/inicio/' %}class="activo"{% endif %}>Inicio</a>
-        <a href="{% url 'productos_views' %}" {% if request.path == '/productos/' %}class="activo"{% endif %}>Productos</a>
-        <a href="{% url 'resumenInventario' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Dashboard</a>
-        <a href="{% url 'historial_ordenes' %}" {% if request.path == '/resumen-inventario/' %}class="activo"{% endif %}>Historial de ordenes</a>></a>
-    </div>
+    <!-- Sidebar -->
+    <nav class="sidebar" aria-label="Menú lateral">
+        <a href="{% url 'inicio' %}" class="{% if request.path == '/inicio/' %}activo{% endif %}">
+            <i class="bi bi-house-door-fill me-2"></i> Inicio
+        </a>
+        <a href="{% url 'productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
+            <i class="bi bi-box-seam me-2"></i> Productos
+        </a>
+        <a href="{% url 'resumenInventario' %}" class="activo">
+            <i class="bi bi-bar-chart-line-fill me-2"></i> Dashboard
+        </a>
+        <a href="{% url 'historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
+            <i class="bi bi-clock-history me-2"></i> Historial de órdenes
+        </a>
+    </nav>
 
-    <!-- Contenido Principal -->
-    <div class="main-content container py-4">
-        <h1 class="title mb-4">Dashboard</h1>
-        <hr>
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <h1 class="mb-4 text-center">Dashboard</h1>
+        <hr class="mb-5">
 
         <!-- Resumen de métricas -->
-        <div class="row text-center mb-4">
-            <div class="col-md-4">
-                <div class="card bg-light shadow-sm">
+        <div class="row text-center mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm bg-white">
                     <div class="card-body">
-                        <h5 class="card-title">Total de Productos</h5>
-                        <p class="card-text fs-4">{{ total_productos }}</p>
+                        <h5 class="card-title text-secondary">Total de Productos</h5>
+                        <p class="card-text display-5 fw-bold text-primary">{{ total_productos }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-light shadow-sm">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm bg-white">
                     <div class="card-body">
-                        <h5 class="card-title">Stock Total</h5>
-                        <p class="card-text fs-4">{{ stock_total }}</p>
+                        <h5 class="card-title text-secondary">Stock Total</h5>
+                        <p class="card-text display-5 fw-bold text-success">{{ stock_total }}</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card bg-light shadow-sm">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm bg-white">
                     <div class="card-body">
-                        <h5 class="card-title">Precio Promedio</h5>
-                        <p class="card-text fs-4">${{ precio_promedio }}</p>
+                        <h5 class="card-title text-secondary">Precio Total</h5>
+                        <p class="card-text display-5 fw-bold text-warning">${{ valor_total_stock|floatformat:0|intcomma }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico -->
-        <div class="chart-container mb-5">
-            <canvas id="graficoStock"></canvas>
-        </div>
-        <h2 class="mb-4">Productos más vendidos</h2>
+        <!-- Gráficos -->
+        <div class="charts-row d-flex justify-content-center mb-5 gap-5 flex-wrap">
+            <div class="chart-container" style="flex: 1; max-width: 600px;">
+                <h3 class="text-center mb-4 text-secondary">Stock por Producto (Barras)</h3>
+                <canvas id="graficoStock" aria-label="Gráfico de barras del stock por producto" role="img"></canvas>
+            </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Cantidad Vendida</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in productos_mas_vendidos %}
-        <tr>
-            <td>{{ item.producto__nombre }}</td>
-            <td>{{ item.total_vendidos }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="2">No hay ventas registradas todavía.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<div class="table-responsive">
-    <!-- Menú de 3 puntitos arriba a la derecha -->
-    <div class="d-flex justify-content-end mb-2 me-3">
-        <div class="dropdown">
-            <button class="btn btn-light" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" title="Opciones">
-                <i class="bi bi-three-dots-vertical fs-5"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="{% url 'exportar_excel' %}">Exportar a Excel</a></li>
-            </ul>
+            <div class="chart-circular-wrapper">
+                <h3 class="mb-3">Distribución del Stock (Circular)</h3>
+                <canvas id="graficoCircular" aria-label="Gráfico circular de distribución del stock" role="img"></canvas>
+            </div>
         </div>
-    </div>
 
-    <!-- Tabla de productos -->
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for producto in productos %}
-                <tr>
-                    <td>{{ producto.id }}</td>
-                    <td>{{ producto.nombre }}</td>
-                    <td>{{ producto.descripcion }}</td>
-                    <td>${{ producto.precio }}</td>
-                    <td>{{ producto.stock }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Productos más vendidos -->
+        <h2 class="mb-4 text-secondary">Productos más vendidos</h2>
+        <div class="table-responsive mb-5">
+            <table class="table table-striped table-bordered align-middle text-center">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad Vendida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in productos_mas_vendidos %}
+                    <tr>
+                        <td>{{ item.producto__nombre }}</td>
+                        <td>{{ item.total_vendidos }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-muted fst-italic">No hay ventas registradas todavía.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
+
+        <!-- Exportar -->
+        <div class="d-flex justify-content-end mb-4">
+            <a href="{% url 'exportar_excel' %}" class="btn btn-primary export-btn" title="Exportar productos a Excel">
+                <i class="bi bi-file-earmark-excel me-2"></i> Exportar a Excel
+            </a>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in productos_con_total %}
+                    <tr>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>{{ item.producto.descripcion }}</td>
+                        <td>${{ item.producto.precio|floatformat:0|intcomma }}</td>
+                        <td>{{ item.producto.stock }}</td>
+                        <td>${{ item.total|floatformat:0|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const ctx = document.getElementById('graficoStock').getContext('2d');
+    const labels = JSON.parse('{{ labels|safe }}');
+    const datosStock = JSON.parse('{{ datos_stock|safe }}');
+    
 
-            const labels = JSON.parse('{{ labels|safe }}');
-            const datosStock = JSON.parse('{{ datos_stock|safe }}');
+    function generarColores(cantidad) {
+    const colores = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        // puedes añadir más colores aquí si tienes más productos
+    ];
+    // Si hay más productos que colores, repetir colores en ciclo
+    let resultado = [];
+    for (let i = 0; i < cantidad; i++) {
+        resultado.push(colores[i % colores.length]);
+    }
+    return resultado;
+    }
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Stock',
-                        data: datosStock,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
+    const colores = generarColores(labels.length);
+
+    const ctx = document.getElementById('graficoStock').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Stock de productos',
+                data: datosStock,
+                backgroundColor: colores,      // array con colores por barra
+                borderColor: colores.map(c => c.replace('0.7', '1')),  // borde igual color pero opaco
+                borderWidth: 1,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Gráfico circular
+    const labelsCircular = JSON.parse('{{ labels_circular|safe }}');
+    const datosCircular = JSON.parse('{{ datos_circular|safe }}');
+
+    const ctxCircular = document.getElementById('graficoCircular').getContext('2d');
+    new Chart(ctxCircular, {
+        type: 'doughnut',
+        data: {
+            labels: labelsCircular,
+            datasets: [{
+                label: 'Distribución del stock',
+                data: datosCircular,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',  // <--- leyenda abajo
+                    labels: {
+                        boxWidth: 20,
+                        padding: 15,
+                        font: {
+                            size: 14,
                         }
                     }
+                },
+                title: {
+                    display: true,
+                    text: 'Distribución del Stock',
+                    padding: {
+                        bottom: 20,
+                    },
+                    font: {
+                        size: 18,
+                        weight: 'bold',
+                    }
                 }
-            });
-        });
+            }
+        }
+    });
     </script>
-    <!-- Bootstrap JS (requerido para el dropdown) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

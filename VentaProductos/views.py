@@ -9,11 +9,11 @@ from django.contrib.auth.decorators import user_passes_test
 
 
 def onepiece(request):
-    productos = Producto.objects.filter(categoria__iexact="One Piece")
+    productos = Producto.objects.all()
     return render(request, 'OnePiece.html', {'productos': productos})
 
 def pokemon(request):
-    productos = Producto.objects.filter(categoria__iexact="Pokemon")
+    productos = Producto.objects.all()
     return render(request, 'Pokemon.html', {'productos': productos})
 
 def todo(request):

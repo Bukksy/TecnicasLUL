@@ -13,6 +13,7 @@ urlpatterns = [
     path('carrito/finalizar/', views.finalizar_compra, name='finalizar_compra'),
     path('historial/', views.historial_ordenes, name='historial_ordenes'),
     path('limpiar-historial/', views.limpiar_historial_compras, name='limpiar_historial'),
+    path('exportar_historial_excel/', views.exportar_historial_excel, name='exportar_historial_excel'),
 
 
 ]

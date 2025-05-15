@@ -1,67 +1,142 @@
-from django.shortcuts import render, redirect, get_object_or_404, redirect
-from .models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden
-from django.contrib.auth.decorators import login_required
-from django.db import transaction, models
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden, Categoria, Categoria_producto
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse
-from django.contrib.auth.decorators import user_passes_test
+from django.http import JsonResponse, HttpResponse
+import openpyxl
 
 def es_admin(user):
     return user.is_staff
 
 @login_required
 @user_passes_test(es_admin)
+def exportar_historial_excel(request):
+    ordenes = OrdenCompra.objects.filter(usuario=request.user).order_by('-fecha')
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Historial de Compras"
+
+    # Encabezados
+    ws.append(['ID Orden', 'Fecha', 'Producto', 'Cantidad', 'Precio Unitario', 'Subtotal', 'Total Orden'])
+
+    for orden in ordenes:
+        for detalle in orden.detalles.all():
+            subtotal = detalle.cantidad * detalle.precio_unitario
+            ws.append([
+                orden.id,
+                orden.fecha.strftime('%d/%m/%Y %H:%M'),
+                detalle.producto.nombre,
+                detalle.cantidad,
+                detalle.precio_unitario,
+                subtotal,
+                orden.total,
+            ])
+
+    # Ajustar anchos de columnas
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[col_letter].width = max_length + 2
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=historial_compras.xlsx'
+    wb.save(response)
+    return response
+
+@login_required
+@user_passes_test(es_admin)
 def productos_view(request):
-    productos = Producto.objects.all()
+    productos = Producto.objects.select_related('categoria', 'CategoriaProd').all()
     return render(request, 'productos_views.html', {'productos': productos})
 
 @login_required
 @user_passes_test(es_admin)
 def agregar(request):
+    categoria = Categoria.objects.all()
+    categoriaprod = Categoria_producto.objects.all()
     if request.method == 'POST':
         nombre = request.POST['nombre']
         descripcion = request.POST['descripcion']
+        categoria_id = request.POST['categoria']
+        categoriaprod_id = request.POST['categoriaprod']
         precio = request.POST['precio']
         stock = request.POST['stock']
-        imagen = request.FILES.get('imagen', None)
-        
+        imagen = request.FILES.get('imagen')
+
         producto = Producto.objects.create(
             nombre=nombre,
             descripcion=descripcion,
+            categoria_id=categoria_id,
+            CategoriaProd_id=categoriaprod_id,
             precio=precio,
             stock=stock,
             imagen=imagen
         )
-        
-        return redirect('productos_views') 
 
-    return render(request, 'add_prod.html')
+        return redirect('productos_views')
+
+    return render(request, 'add_prod.html', {
+        'categoria': categoria,
+        'categoriaprod': categoriaprod
+    })
 
 @login_required
 @user_passes_test(es_admin)
 def editar(request):
     productos = Producto.objects.all()
+    categorias = Categoria.objects.all()
+    categorias_prod = Categoria_producto.objects.all()
+
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
         return redirect('editar_producto', id=producto_id)
-    return render(request, 'mod_prod.html', {'productos': productos})
+
+    return render(request, 'mod_prod.html', {
+        'productos': productos,
+        'categorias': categorias,
+        'categorias_prod': categorias_prod
+    })
 
 @login_required
 @user_passes_test(es_admin)
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
+    categorias = Categoria.objects.all()
+    categorias_prod = Categoria_producto.objects.all()
+
     if request.method == 'POST':
         producto.nombre = request.POST['nombre']
         producto.descripcion = request.POST['descripcion']
         producto.precio = request.POST['precio']
         producto.stock = request.POST['stock']
+
+        categoria_id = request.POST.get('categoria')
+        categoriaprod_id = request.POST.get('categoriaprod')
+        
+        if categoria_id:
+            producto.categoria = Categoria.objects.get(id=categoria_id)
+        if categoriaprod_id:
+            producto.CategoriaProd = Categoria_producto.objects.get(id=categoriaprod_id)
+
         if request.FILES.get('imagen'):
             producto.imagen = request.FILES['imagen']
+        
         producto.save()
         return redirect('productos_views')
 
-    return render(request, 'edit_prod_form.html', {'producto': producto})
+    return render(request, 'edit_prod_form.html', {
+        'producto': producto,
+        'categorias': categorias,
+        'categorias_prod': categorias_prod
+    })
 
 @login_required
 @user_passes_test(es_admin)
@@ -77,7 +152,6 @@ def ver_carrito(request):
     items = carrito.items.select_related('producto')
     total = sum(item.subtotal() for item in items)
     return render(request, 'carrito_view.html', {'items': items, 'total': total})
-
 
 
 @login_required
@@ -109,6 +183,7 @@ def quitar_del_carrito(request, item_id):
     item.delete()
     return redirect('ver_carrito')
 
+
 @login_required
 def finalizar_compra(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
@@ -119,24 +194,21 @@ def finalizar_compra(request):
 
     total = sum(item.subtotal() for item in items)
 
-    # Crear la orden
-    orden = OrdenCompra.objects.create(usuario=request.user, total=total)
-
-    # Crear los detalles
-    for item in items:
-        DetalleOrden.objects.create(
-            orden=orden,
-            producto=item.producto,
-            cantidad=item.cantidad,
-            precio_unitario=item.producto.precio
-        )
-        item.producto.stock -= item.cantidad
-        item.producto.save()
-
-    # Vaciar el carrito
-    items.delete()
+    with transaction.atomic():
+        orden = OrdenCompra.objects.create(usuario=request.user, total=total)
+        for item in items:
+            DetalleOrden.objects.create(
+                orden=orden,
+                producto=item.producto,
+                cantidad=item.cantidad,
+                precio_unitario=item.producto.precio
+            )
+            item.producto.stock -= item.cantidad
+            item.producto.save()
+        items.delete()
 
     return render(request, 'orden_exitosa.html', {'total': total})
+
 
 @login_required
 @user_passes_test(es_admin)
