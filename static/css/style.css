@@ -1,50 +1,80 @@
 /* Sidebar fijo */
-        body {
-            display: flex;
-            margin-top: 50px;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        .sidebar {
-            width: 240px;
-            background-color: #343a40;
-            color: #fff;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 56px; /* Altura navbar */
-            bottom: 0;
-            padding-top: 1rem;
-        }
-        .sidebar a {
-            color: #adb5bd;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            border-left: 4px solid transparent;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        .sidebar a:hover,
-        .sidebar a.activo {
-            background-color: #495057;
-            color: #fff;
-            border-left-color: #0d6efd;
-        }
+@font-face {
+    font-family: 'Fuente1';
+    src: url('../fonts/WorkforceCombine_PERSONAL_USE_ONLY.otf') format('OpenType');
+}
 
-        .main-content {
-            margin-left: 240px;
-            width: calc(100% - 240px);
-            padding: 2rem;
-            background-color: #f8f9fa;
-            min-height: calc(100vh - 56px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+@font-face {
+    font-family: 'Fuente2';
+    src: url('../fonts/Krisha-Regular.otf') format('OpenType');
+}   
+
+@font-face {
+    font-family: 'Fuente3';
+    src: url('../fonts/UndertheWeather.otf') format('OpenType');
+}   
+
+#titulo{
+    font-family: 'Fuente1';
+}
+
+#titulo2{
+    font-family: 'Fuente3';
+    font-size: 20px;
+}
+
+.titulos{
+    font-family: 'Fuente2';
+    font-size: 80px;
+    background: linear-gradient(to bottom, #424242, #212121);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body {
+    display: flex;
+    margin-top: 50px;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.sidebar {
+    width: 240px;
+    background-color: #343a40;
+    color: #fff;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 56px; /* Altura navbar */
+    bottom: 0;
+    padding-top: 1rem;
+}
+.sidebar a {
+    color: #adb5bd;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.sidebar a:hover,
+.sidebar a.activo {
+    background-color: #495057;
+    color: #fff;
+    border-left-color: #0d6efd;
+}
+
+.main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 56px);
+}
+
 
         /* Tarjetas estilo bootstrap */
         .card-title {

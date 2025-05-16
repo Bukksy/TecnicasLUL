@@ -71,3 +71,89 @@
         height: 50px;
     }
 }
+
+.contenedor-clima{
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 670px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+
+.contenedor-completo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-completo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.contenedor-clima-pronostico {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Estilo del título de pronóstico */
+.titulo-pronostico {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* Contenedor de los cards de pronóstico */
+.cards-pronostico {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Cada card del pronóstico */
+.card-pronostico {
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 120px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.reloj-fecha {
+    display: flex;
+    gap: 20px; /* espacio entre los elementos */
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 16px;
+}
+.reloj-fecha p {
+    margin: 0;
+}
+
+p{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.arreglos{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.arreglos2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}

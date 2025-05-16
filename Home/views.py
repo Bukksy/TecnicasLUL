@@ -65,7 +65,6 @@ def obtener_clima_y_pronostico(ciudad="Santiago"):
         'unidad_viento': 'Km/h',
     }
 
-    # Procesar pronóstico agrupando por día
     from datetime import datetime
     pronostico_dias = {}
 
@@ -88,19 +87,29 @@ def obtener_clima_y_pronostico(ciudad="Santiago"):
         else:
             pronostico_dias[fecha]['temp_min'] = min(pronostico_dias[fecha]['temp_min'], temp_min)
             pronostico_dias[fecha]['temp_max'] = max(pronostico_dias[fecha]['temp_max'], temp_max)
-            # Para simplificar, toma la última descripción/icono del día
             pronostico_dias[fecha]['descripcion'] = descripcion
             pronostico_dias[fecha]['icono'] = icono
             pronostico_dias[fecha]['contador'] += 1
 
-    # Convertir dict a lista con nombre del día en español
-    import locale
-    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Asegura nombre de días en español
+        dias_semana = {
+        'Monday': 'Lunes',
+        'Tuesday': 'Martes',
+        'Wednesday': 'Miércoles',
+        'Thursday': 'Jueves',
+        'Friday': 'Viernes',
+        'Saturday': 'Sábado',
+        'Sunday': 'Domingo'
+    }
+
+    fecha_obj = datetime.strptime(fecha, "%Y-%m-%d")
+    dia_ingles = fecha_obj.strftime('%A')
+    dia_semana = dias_semana.get(dia_ingles, dia_ingles)
 
     pronostico_lista = []
     for fecha, valores in pronostico_dias.items():
         fecha_obj = datetime.strptime(fecha, "%Y-%m-%d")
-        dia_semana = fecha_obj.strftime('%A').capitalize()
+        dia_ingles = fecha_obj.strftime('%A')
+        dia_semana = dias_semana.get(dia_ingles, dia_ingles)
 
         pronostico_lista.append({
             'fecha': fecha,
@@ -111,7 +120,6 @@ def obtener_clima_y_pronostico(ciudad="Santiago"):
             'icono': valores['icono'],
         })
 
-    # Opcional: eliminar primer día (hoy), porque ya está clima_actual
     if pronostico_lista:
         pronostico_lista.pop(0)
 
