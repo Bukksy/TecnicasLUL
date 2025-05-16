@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404, redirect
-from Productos.models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden
+from Productos.models import *
 from django.contrib.auth.decorators import login_required
 from django.db import transaction, models
 from django.contrib.auth.models import User
@@ -9,11 +9,13 @@ from django.contrib.auth.decorators import user_passes_test
 
 
 def onepiece(request):
-    productos = Producto.objects.all()
+    categoria = get_object_or_404(Categoria, nombre='One Piece')
+    productos = Producto.objects.filter(categoria=categoria)
     return render(request, 'OnePiece.html', {'productos': productos})
 
 def pokemon(request):
-    productos = Producto.objects.all()
+    categoria = get_object_or_404(Categoria, nombre='Pokemon')
+    productos = Producto.objects.filter(categoria=categoria)
     return render(request, 'Pokemon.html', {'productos': productos})
 
 def todo(request):

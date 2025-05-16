@@ -19,31 +19,29 @@
     </style>
 
     <!-- Navbar Superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark top-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#" id="titulo">Logistic</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Hola, {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'ver_carrito' %}">Carrito</a></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a>
-                                </li>
-                            </ul>
-                        </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
                     {% else %}
-                        <!-- Si el usuario no está logueado, muestra el enlace de login -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
@@ -52,7 +50,7 @@
     
 
     <div class="sidebar">
-        <a href="#" class="activo">Inicio</a>
+        <a href="{% url 'inicio' %}" class="activo">Inicio</a>
         <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()">Productos ▾</a>
         <div id="submenu" class="submenu">
             <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
@@ -61,7 +59,8 @@
         </div>
     </div>
 
-    <div class="main-content" style="text-align: center;">
+    <div class="main-content" style="text-align: center; margin-top: 50px;">
+        
         <h1 class="titulos">Bienvenido, {{user}}</h1>
         <hr>
         <h4>--Visualiza nuestras ofrendas--</h4>
@@ -100,7 +99,36 @@
                 </a>
             </div>
         </div>
+            <div class="div1" style="width: 200px; height: 20px; margin-left: 700px; margin-top: 50px;">
+            <input hidden="" class="cart-toggle" id="cart-toggle" type="checkbox" />
+                <label class="cart-button" for="cart-toggle">
+                <span class="cart-icon">
+                    <svg
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    height="24"
+                    width="24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    >
+                    <circle r="1" cy="21" cx="9"></circle>
+                    <circle r="1" cy="21" cx="20"></circle>
+                    <path
+                        d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                    ></path>
+                    </svg>
+                </span>
+
+                Ver Carrito
+                <div class="progress-bar"></div>
+                </label>
+        </div>
     </div>
+    
+
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -136,5 +164,6 @@
             submenu.style.display = submenu.style.display === "flex" ? "none" : "flex";
         }
     </script>
+
 </body>
 </html>

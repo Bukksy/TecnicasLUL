@@ -131,7 +131,6 @@ def obtener_clima_y_pronostico(ciudad="Santiago"):
 
 
 @login_required
-@login_required
 def inicio(request):
     datos_clima = obtener_clima_y_pronostico()
 
@@ -205,3 +204,4 @@ def exportar_excel(request):
 
     wb.save(response)
     return response
+
