@@ -68,6 +68,7 @@ body {
 
 .main-content {
     margin-left: 240px;
+    margin-top: 50px;
     width: calc(100% - 240px);
     padding: 2rem;
     background-color: #f8f9fa;

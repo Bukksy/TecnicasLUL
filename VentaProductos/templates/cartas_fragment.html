@@ -1,0 +1,19 @@
+{% for carta in cartas %}
+<div class="col">
+    <div class="card h-100 shadow-sm">
+        <img src="{{ carta.images.small }}" loading="lazy" class="card-img-top" alt="{{ carta.name }}">
+        <div class="card-body">
+            <h5 class="card-title">{{ carta.name }}</h5>
+            <p class="card-text"><strong>Set:</strong> {{ carta.set.name|default:"N/A" }}</p>
+            <p class="card-text"><strong>Rareza:</strong> {{ carta.rarity|default:"N/A" }}</p>
+            <p class="card-text"><strong>Precio:</strong>
+                {% if carta.tcgplayer and carta.tcgplayer.prices and carta.tcgplayer.prices.normal %}
+                    ${{ carta.tcgplayer.prices.normal.market|default:"N/A" }}
+                {% else %}
+                    No disponible
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endfor %}

@@ -79,10 +79,20 @@
                 <img style="width: 100px; margin-bottom: 20px;" id="icono-clima" src="http://openweathermap.org/img/wn/{{ clima_actual.icono }}@2x.png" alt="Icono clima actual">
                 <p><strong>Temperatura:</strong> <span id="temperatura-actual">{{ clima_actual.temperatura }}</span> °C</p>
             </div>
+
             <div class="arreglos2">
-                <p><strong>Descripción:</strong> {{ clima_actual.descripcion }}</p>
-                <p><strong>Sensación térmica:</strong> {{ clima_actual.sensacion_termica }} °C</p>
-                <p><strong>Humedad:</strong> {{ clima_actual.humedad }}</p>
+                <div style="display: grid; gap: 0px;">
+                    <p style="height: 10px;"><strong>Descripción:</strong></p>
+                    <p style="text-transform: uppercase;">{{ clima_actual.descripcion }}</p>
+                </div>
+                <div style="display: grid; gap: 0px;">
+                    <p style="height: 10px;"><strong>Sensación térmica:</strong></p>
+                    <p style="text-transform: uppercase;">{{ clima_actual.sensacion_termica }} °C</p>
+                </div> 
+                <div style="display: grid; gap: 0px;">
+                    <p style="height: 10px;"><strong>Humedad:</strong></p>
+                    <p style="text-transform: uppercase;">{{ clima_actual.humedad }}</p>
+                </div>
             </div>
             <div class="arreglos2">
                 <p><strong>Presion:</strong> {{ clima_actual.presion }}</p>
