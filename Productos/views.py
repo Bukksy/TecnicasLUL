@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse
 import openpyxl
+from django.core.paginator import Paginator
 
 def es_admin(user):
     return user.is_staff
@@ -54,15 +55,36 @@ def exportar_historial_excel(request):
 @login_required
 @user_passes_test(es_admin)
 def productos_view(request):
-    productos = Producto.objects.select_related('categoria', 'CategoriaProd').all()
-    onepiececards = OnepieceCards.objects.all()
-    pokemoncards = PokemonCard.objects.all()
+    page_number = request.GET.get('page', '1')
+    
+    if page_number == '1':
+        productos = Producto.objects.select_related('categoria', 'CategoriaProd').all().order_by('id')
+        context = {'productos': productos, 'current_page': 1}
+    
+    elif page_number == '2':
+        onepiececards = OnepieceCards.objects.all().order_by('id')
+        context = {'onepiececards': onepiececards, 'current_page': 2}
+    
+    elif page_number == '3':
+        pokemoncards = PokemonCard.objects.all().order_by('id')
+        
+        pokemon_pagina = []
+        for carta in pokemoncards:
+            data = getattr(carta, 'data', {})
+            pokemon_pagina.append({
+                'id': carta.id,
+                'nombre': data.get('name', 'N/A'),
+                'rareza': data.get('rarity', 'N/A'),
+                'set': data.get('set', {}).get('name', 'N/A'),
+                'imagen': data.get('images', {}).get('small', ''),
+                'precio': data.get('precio_local', 'N/A'),
+                'stock': data.get('stock_local', 'N/A'),
+            })
+        context = {'pokemoncards': pokemon_pagina, 'current_page': 3}
+    
+    else:
+        return redirect('/ruta/productos/?page=1')
 
-    context = {
-        'productos': productos,
-        'onepiececards': onepiececards,
-        'pokemoncards': pokemoncards,
-    }
     return render(request, 'productos_views.html', context)
 
 @login_required

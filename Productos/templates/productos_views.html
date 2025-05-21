@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +27,38 @@
                     color: white; /* para que el texto se vea */
                     z-index: 10; /* para que esté por encima de las filas */
                 }
+        .pagination {
+            display: inline-flex;
+            gap: 10px;
+            margin: 20px 0;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .pagination a {
+            background-color: #23272a;
+            color: #eee;
+            padding: 8px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: 1px solid #444c56;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #5865f2; /* azul vibrante */
+            color: #fff;
+            border-color: #5865f2;
+        }
+
+        .pagination a.active {
+            background-color: #5865f2;
+            color: white;
+            font-weight: bold;
+            pointer-events: none;
+            border-color: #5865f2;
+        }
+
     </style>
 </head>
 <body style="display: grid; justify-content: center; align-items: center;">
@@ -75,145 +108,156 @@
     </nav>
 
 
-    <div class="main-content" style="text-align: center; margin-top: 50px;">
+    <div class="main-content" style="text-align: center; margin-top: 40px;">
         <h1 class="titulos">Productos</h1>
         <hr>
 
     <div style="margin-left: -15px;">
-        <div class="container-fluid" style="max-height: 750px; overflow-y: auto;">
-            <table class="table table-hover table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="text-align: center;">Nombre</th>
-                        <th style="text-align: center;">Descripción</th>
-                        <th style="text-align: center;">Precio</th>
-                        <th style="text-align: center;">Stock</th>
-                        <th style="text-align: center;">Ver mas</th>
-                        <th style="text-align: center;">Comprar</th>
-                        <th style="text-align: center;">Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    {% load humanize %}
-                    <tr class="text-center">
-                        <td>{{ producto.nombre }}</td>
-                        <td>{{ producto.descripcion }}</td>
-                        <td>$ {{ producto.precio|floatformat:0|intcomma }}</td>
-                        <td style="text-align: center;">{{ producto.stock }}</td>
-                        <td style="width: 50px;">
-                            <div class="d-flex justify-content-center">
-                                <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm" onclick="openModal('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
-                                
-                            </div>
-                        </td>
-                        <td style="width: 350px;">
-                            <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" class="d-flex gap-2 align-items-center">
-                                    {% csrf_token %}
-                                    <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required class="form-control form-control-sm" style="width: 60px;">
-                                    <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
-                            </form>
-                        </td>
-                        <td style="display: grid; justify-content: center; align-items: center;">
-                            <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ producto.id }}')">Eliminar</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <hr>
-        <h2 class="titulos" style="font-size: 50px; text-align: start;">Onepiece Cards</h2>
-        <div class="container-fluid" style="max-height: 300px; overflow-y: auto;">
-            <table class="table table-hover table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="text-align: center; width: 30px;">Nombre</th>
-                        <th style="text-align: center;">Descripción</th>
-                        <th style="text-align: center;">Precio</th>
-                        <th style="text-align: center;">Stock</th>
-                        <th style="text-align: center;">Ver más</th>
-                        <th style="text-align: center;">Comprar</th>
-                        <th style="text-align: center;">Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for card in onepiececards %}
-                    <tr class="text-center">
-                        <td>{{ card.nombre }}</td>
-                        <td>{{ card.descripcion }}</td>
-                        <td>$ {{ card.precio_local|floatformat:0|intcomma }}</td>
-                        <td>{{ card.stock }}</td>
-                        <td style="width: 50px;">
-                            <div class="d-flex justify-content-center">
-                                <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
-                                    onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{{ card.imagen.url }}')">
-                                    Ver más
-                                </button>
-                            </div>
-                        </td>
-                        <td style="width: 300px;">
-                            <form action="{% url 'agregar_al_carrito' card.id %}" method="post" class="d-flex gap-2 align-items-center">
-                                {% csrf_token %}
-                                <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
-                                    class="form-control form-control-sm" style="width: 60px;">
-                                <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
-                            </form>
-                        </td>
-                        <td style="display: grid; justify-content: center; align-items: center;">
-                            <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <hr>
-        <h2 class="titulos" style="font-size: 50px; text-align: start;">Pokemon Cards</h2>
-        <div class="container-fluid" style="max-height: 300px; overflow-y: auto;">
-            <table class="table table-hover table-striped align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="text-align: center; width: 30px;">Nombre</th>
-                        <th style="text-align: center;">Descripción</th>
-                        <th style="text-align: center;">Precio</th>
-                        <th style="text-align: center;">Stock</th>
-                        <th style="text-align: center;">Ver más</th>
-                        <th style="text-align: center;">Comprar</th>
-                        <th style="text-align: center;">Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for card in pokemoncards %}
-                    <tr class="text-center">
-                        <td>{{ card.data.nombre }}</td>                         
-                        <td>{{ card.data.set }}</td>
-                        <td>$ {{ card.data.precio_local|floatformat:0|intcomma }}</td>
-                        <td>{{ card.data.stock }}</td>
-                        <td style="width: 50px;">
-                            <div class="d-flex justify-content-center">
-                                <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
-                                    onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{{ card.imagen.url }}')">
-                                    Ver más
-                                </button>
-                            </div>
-                        </td>
-                        <td style="width: 300px;">
-                            <form action="{% url 'agregar_al_carrito' card.id %}" method="post" class="d-flex gap-2 align-items-center">
-                                {% csrf_token %}
-                                <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
-                                    class="form-control form-control-sm" style="width: 60px;">
-                                <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
-                            </form>
-                        </td>
-                        <td style="display: grid; justify-content: center; align-items: center;">
-                            <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% if current_page == 1 %}
+            <div class="container-fluid" style="max-height: 750px; overflow-y: auto;">
+                <table class="table table-hover table-striped align-middle" style="width: 1600px;">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="text-align: center;">Nombre</th>
+                            <th style="text-align: center;">Descripción</th>
+                            <th style="text-align: center;">Precio</th>
+                            <th style="text-align: center;">Stock</th>
+                            <th style="text-align: center;">Ver mas</th>
+                            <th style="text-align: center;">Comprar</th>
+                            <th style="text-align: center; width: 150px;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr class="text-center">
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>$ {{ producto.precio|floatformat:0|intcomma }}</td>
+                            <td style="text-align: center;">{{ producto.stock }}</td>
+                            <td style="width: 50px;">
+                                <div class="d-flex justify-content-center">
+                                    <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm" onclick="openModal('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
+                                    
+                                </div>
+                            </td>
+                            <td style="width: 350px;">
+                                <form action="{% url 'agregar_al_carrito' producto.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                        {% csrf_token %}
+                                        <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required class="form-control form-control-sm" style="width: 60px;">
+                                        <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
+                                </form>
+                            </td>
+                            <td style="display: grid; justify-content: center; align-items: center;">
+                                <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ producto.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif current_page == 2 %}
+                <h2 class="titulos" style="font-size: 50px; text-align: start;">Onepiece Cards</h2>
+                <div class="container-fluid" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-hover table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="text-align: center; width: 30px;">Nombre</th>
+                                <th style="text-align: center;">Descripción</th>
+                                <th style="text-align: center;">Precio</th>
+                                <th style="text-align: center;">Stock</th>
+                                <th style="text-align: center;">Ver más</th>
+                                <th style="text-align: center;">Comprar</th>
+                                <th style="text-align: center;">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for card in onepiececards %}
+                            <tr class="text-center">
+                                <td>{{ card.nombre }}</td>
+                                <td>{{ card.descripcion }}</td>
+                                <td>$ {{ card.precio_local|floatformat:0|intcomma }}</td>
+                                <td>{{ card.stock }}</td>
+                                <td style="width: 50px;">
+                                    <div class="d-flex justify-content-center">
+                                        <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
+                                            onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{{ card.imagen.url }}')">
+                                            Ver más
+                                        </button>
+                                    </div>
+                                </td>
+                                <td style="width: 300px;">
+                                    <form action="{% url 'agregar_al_carrito' card.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                        {% csrf_token %}
+                                        <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
+                                            class="form-control form-control-sm" style="width: 60px;">
+                                        <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
+                                    </form>
+                                </td>
+                                <td style="display: grid; justify-content: center; align-items: center;">
+                                    <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <div id="spinner" style="display:none; text-align:center; margin:20px;">
+                            <div class="spinner-border" role="status"></div>
+                        </div>
+
+                    </table>
+                </div>
+
+            {% elif current_page == 3 %}
+                <h2 class="titulos" style="font-size: 50px; text-align: start;">Pokemon Cards</h2>
+                <div class="container-fluid" style="max-height: 500px;overflow-y: auto;">
+                    <table class="table table-hover table-striped align-middle" style="width: 1600px;" >
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="text-align: center;">Nombre</th>
+                                <th style="text-align: center;">Descripción</th>
+                                <th style="text-align: center;">Precio</th>
+                                <th style="text-align: center;">Stock</th>
+                                <th style="text-align: center;">Ver más</th>
+                                <th style="text-align: center;">Comprar</th>
+                                <th style="text-align: center; width: 150px;">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for card in pokemoncards %}
+                            <tr class="text-center">
+                                <td >{{ card.nombre }}</td>                         
+                                <td>{{ card.set }}</td>
+                                <td>$ {{ card.precio|floatformat:0|intcomma }}</td>
+                                <td>{{ card.stock }}</td>
+                                <td style="width: 50px;">
+                                    <div class="d-flex justify-content-center">
+                                        <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
+                                            onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.rareza }}', '{{ card.precio }}', '{{ card.stock }}', '{{ card.imagen }}')">
+                                            Ver más
+                                        </button>
+                                    </div>
+                                </td>
+                                <td style="width: 300px;">
+                                    <form action="{% url 'agregar_al_carrito' card.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                        {% csrf_token %}
+                                        <input style="height: 50px;" type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
+                                            class="form-control form-control-sm" style="width: 60px;">
+                                        <button style="height: 50px; width: 150px;" type="submit" class="btn btn-success btn-sm">Comprar</button>
+                                    </form>
+                                </td>
+                                <td style="display: grid; justify-content: center; align-items: center;">
+                                    <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            <div class="pagination">
+                <a href="?page=1" class="{% if current_page == 1 %}active{% endif %}">1</a>
+                <a href="?page=2" class="{% if current_page == 2 %}active{% endif %}">2</a>
+                <a href="?page=3" class="{% if current_page == 3 %}active{% endif %}">3</a>
+            </div>
 
     <!-- Modal -->
     <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
@@ -343,6 +387,7 @@
             });
         }
     </script>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const links = document.querySelectorAll('.sidebar a');

@@ -136,7 +136,7 @@
                 <div class="card shadow-sm bg-white">
                     <div class="card-body">
                         <h5 class="card-title text-secondary">Total de Productos</h5>
-                        <p class="card-text display-5 fw-bold text-primary">{{ total_productos }}</p>
+                        <p class="card-text display-5 fw-bold text-primary">{{ total_productos|floatformat:0|intcomma }}</p>
                     </div>
                 </div>
             </div>
@@ -144,7 +144,7 @@
                 <div class="card shadow-sm bg-white">
                     <div class="card-body">
                         <h5 class="card-title text-secondary">Stock Total</h5>
-                        <p class="card-text display-5 fw-bold text-success">{{ stock_total }}</p>
+                        <p class="card-text display-5 fw-bold text-success">{{ stock_total|floatformat:0|intcomma }}</p>
                     </div>
                 </div>
             </div>
@@ -171,7 +171,7 @@
                     {% for item in mas_vendidos %}
                         <tr>
                             <td>{{ item.producto.nombre }}</td>
-                            <td>{{ item.total_vendido }}</td>
+                            <td>{{ item.total_vendido|floatformat:0|intcomma }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
