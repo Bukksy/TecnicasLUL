@@ -1,0 +1,25 @@
+{% load humanize %}
+
+{% for carta in cartas_op %}
+<div class="col carta-item" style="margin-top: 20px;">
+    <div class="card h-100 shadow-sm">
+        {% if carta.imagen %}
+            <img src="{{ carta.imagen.url }}" loading="lazy" class="card-img-top" alt="{{ carta.nombre }}">
+        {% else %}
+            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                <span class="text-muted">Sin imagen</span>
+            </div>
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title" style="font-size: 20px;">{{ carta.nombre }}</h5>
+            <p class="card-text"><strong>Tipo:</strong> {{ carta.tipo|default:"N/A" }}</p>
+            <p class="card-text"><strong>Precio:</strong> ${{ carta.precio|default:"N/A"|floatformat:0|intcomma }}</p>
+            <p class="card-text"><strong>Stock:</strong> {{ carta.stock }}</p>
+            <button class="btn btn-outline-primary btn-sm mt-2"
+                    onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
+                Ver más
+            </button>
+        </div>
+    </div>
+</div>
+{% endfor %}

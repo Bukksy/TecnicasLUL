@@ -1,0 +1,159 @@
+/* Card para clima */
+.weather-card {
+    width: 280px;
+    background-color: #495057; /* gris oscuro para combinar con sidebar */
+    color: #f8f9fa; /* texto claro */
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Título del clima */
+.weather-card h3 {
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Contenedor principal info clima */
+.weather-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Bloque temperatura con icono */
+.temperature {
+    font-size: 3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Icono clima */
+.weather-icon img {
+    width: 60px;
+    height: 60px;
+}
+
+/* Datos adicionales (humedad, viento, etc) */
+.weather-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #ced4da;
+}
+
+/* Texto descriptivo */
+.weather-description {
+    font-style: italic;
+    font-size: 1rem;
+    color: #adb5bd;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .weather-card {
+        width: 100%;
+        padding: 15px;
+    }
+    .temperature {
+        font-size: 2.5rem;
+    }
+    .weather-icon img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.contenedor-clima{
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 670px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+
+.contenedor-completo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-completo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.contenedor-clima-pronostico {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Estilo del título de pronóstico */
+.titulo-pronostico {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* Contenedor de los cards de pronóstico */
+.cards-pronostico {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Cada card del pronóstico */
+.card-pronostico {
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 120px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.reloj-fecha {
+    display: flex;
+    gap: 20px; /* espacio entre los elementos */
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 16px;
+}
+.reloj-fecha p {
+    margin: 0;
+}
+
+p{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.arreglos{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.arreglos2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}

@@ -1,0 +1,23 @@
+{% load humanize %}
+<div class="contenedor-cartas" id="cartas-container">
+  <div class="row">
+    {% for carta in cartas %}
+      <div class="col" style="margin-top: 20px;">
+        <div class="card h-100 shadow-sm">
+          <img src="{{ carta.images.small }}" loading="lazy" class="card-img-top" alt="{{ carta.name }}">
+          <div class="card-body">
+            <h5 class="card-title" style="font-size: 10px;">{{ carta.name }}</h5>
+            <p class="card-text"><strong>Set:</strong> {{ carta.set.name|default:"N/A" }}</p>
+            <p class="card-text"><strong>Rareza:</strong> {{ carta.rarity|default:"N/A" }}</p>
+            <p class="card-text"><strong>Precio:</strong> ${{ carta.precio|default:"N/A"|floatformat:0|intcomma }}</p>
+            <p class="card-text"><strong>Stock:</strong> {{ carta.stock }}</p>
+            <button class="btn btn-outline-primary btn-sm mt-2"
+                onclick="openModal('${carta.id}', '${carta.nombre}', '${carta.rareza}', '${carta.set}', '${carta.precio}', '${carta.stock}', '${carta.imagen}')">
+                Ver más
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,214 @@
+{% load static %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnePiece</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/stylecompras.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar Superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" id="titulo">Logistic</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+
+    <div class="sidebar">
+        <a href="{% url 'inicio' %}">Inicio</a>
+        <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()" class="activo">Productos ▾</a>
+        <div id="submenu" class="submenu">
+            <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
+            <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
+            <a class="activo" href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
+        </div>
+            <input hidden="" class="cart-toggle" id="cart-toggle" type="checkbox" style="position: fixed; bottom: 20px; width: 12.4%; z-index: 1050;"/>
+            <label class="cart-button" for="cart-toggle" style="position: fixed; bottom: 20px; width: 240px; z-index: 1050;">
+                <span class="cart-icon">
+                    <svg
+                        stroke-linejoin="round"
+                        stroke-linecap="round"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        height="24"
+                        width="24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <circle r="1" cy="21" cx="9"></circle>
+                        <circle r="1" cy="21" cx="20"></circle>
+                        <path
+                            d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                        ></path>
+                    </svg>
+                </span>
+
+                Ver Carrito
+                <div class="progress-bar"></div>
+            </label>
+            <a href="{% url 'VentasProductos:cartas_pokemon' %}">Cartas Pokemon</a>
+            <a href="{% url 'VentasProductos:cartas_onepiece' %}">Cartas OnePiece</a>
+    </div>
+
+    <div class="main-content" style="text-align: center; margin-top: 50px;">
+    <h1 class="titulos">One Piece</h1>
+    <div class="container-fluid" style="max-height: 750px; overflow-y: auto;">
+        <form method="get" action=".">
+            <input type="text" name="nombre" placeholder="Buscar por nombre" value="{{ nombre }}">
+
+            <select name="tipo">
+                <option value="">-- Todos los tipos --</option>
+                {% for t in tipos_disponibles %}
+                    <option value="{{ t }}" {% if tipo == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Filtrar</button>
+        </form>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
+    {% for carta in cartas_op %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                {% if carta.imagen %}
+                    <img src="{{ carta.imagen.url }}" class="card-img-top img-fluid" alt="{{ carta.nombre }}" style="object-fit: contain; height: auto; max-height: 300px;">
+                {% else %}
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                        <span class="text-muted">Sin imagen</span>
+                    </div>
+                {% endif %}
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ carta.nombre }}</h5>
+                    <p class="card-text">{{ carta.descripcion|truncatewords:15 }}</p>
+                    <button class="btn btn-outline-primary btn-sm mt-2"
+                        onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
+                        Ver más
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+    </div>
+</div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productoModalLabel">Información del Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex">
+                    <!-- Sección de imagen -->
+                    <div class="modal-image-container">
+                        <img id="modalProductoImagen" src="" alt="Imagen del Producto" class="img-fluid">
+                    </div>
+                    <!-- Sección de información -->
+                    <div class="modal-info-container ms-4">
+                        <h3 id="modalProductoNombre"></h3>
+                        <p id="modalProductoDescripcion"></p>
+                        <p><strong>Rareza:</strong> <span id="modalProductoRareza"></span></p>
+                        <p><strong>Stock:</strong> <span id="modalProductoStock"></span></p>
+                        <p><strong>Precio:</strong> <span id="modalProductoPrecio"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const links = document.querySelectorAll('.sidebar a');
+            let activeLink = document.querySelector('.activo');  // Enlace activo inicial
+    
+            // Cambiar el fondo del enlace cuando el mouse pasa sobre otros enlaces
+            links.forEach(link => {
+                link.addEventListener('mouseover', function() {
+                    // Quitar el fondo activo de todos los enlaces
+                    links.forEach(l => l.classList.remove('activo'));
+                    
+                    // Agregar el fondo al enlace sobre el que se pasa el mouse
+                    link.classList.add('activo');
+                });
+    
+                // Cuando el mouse sale de un enlace, el fondo vuelve al enlace "Inicio"
+                link.addEventListener('mouseleave', function() {
+                    // Volver el fondo a "Inicio" (el primer enlace)
+                    links.forEach(l => l.classList.remove('activo'));
+                    activeLink.classList.add('activo');  
+                    
+                });
+            });
+        });
+    </script>    
+    <script>
+        function toggleSubmenu() {
+            const submenu = document.getElementById("submenu");
+            submenu.style.display = submenu.style.display === "flex" ? "none" : "flex";
+        }
+
+        function openModal(id, nombre, descripcion, rareza, precio, stock, imagen) {
+            const precioFormateado = new Intl.NumberFormat('es-CL', { 
+                style: 'currency', 
+                currency: 'CLP', 
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 0 
+            }).format(precio);
+
+            document.getElementById('modalProductoNombre').innerText = nombre;
+            document.getElementById('modalProductoDescripcion').innerText = descripcion;
+            document.getElementById('modalProductoPrecio').innerText = precioFormateado;
+            document.getElementById('modalProductoStock').innerText = stock;
+            document.getElementById('modalProductoImagen').src = imagen;
+            document.getElementById('modalProductoRareza').innerText = rareza;
+
+            const img = document.getElementById('modalProductoImagen');
+            img.style.border = "2px solid #007bff";
+            img.style.borderRadius = "10px";
+            img.style.width = "100%";
+
+            var myModal = new bootstrap.Modal(document.getElementById('productoModal'));
+            myModal.show();
+        }
+    </script>
+</body>
+</html>

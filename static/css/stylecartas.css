@@ -1,0 +1,76 @@
+.submenu {
+    text-align: center;
+      display: none;
+      flex-direction: column;
+      margin-left: 15px;
+      width: 200px;
+      gap: 10px;
+    }
+
+    .submenu a {
+      padding: 8px 10px;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px white;
+      border-radius: 10px;
+      background-color: white;
+      color: #1e0e3e;
+    }
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px; /* menos espacio entre cartas */
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    width: 280px; /* un poco más pequeña */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.card-img {
+    width: 100%;
+    object-fit: contain;
+    background-color: #f7f7f7;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.card-body {
+    padding: 12px 15px;
+}
+
+.card-title {
+    font-size: 1.15em;
+    margin-bottom: 8px;
+    color: #1c1c1c;
+    font-weight: 600;
+    white-space: nowrap; /* evita que el título ocupe más de una línea */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-body p {
+    margin: 4px 0;
+    color: #666;
+    font-size: 0.88em;
+    line-height: 1.3;
+}
+
+.main-content > .container-fluid {
+    padding-top: 1rem; 
+}
+
+#cartas-container {
+    margin-top: 30px; /* O el valor que prefieras */
+    margin-left: 20px;
+}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load humanize %}
+
+<h2>Historial de Compras</h2>
+
+<a href="{% url 'exportar_historial_excel' %}" 
+   style="display:inline-block; margin-bottom:15px; padding: 8px 15px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">
+   Exportar historial a Excel
+</a>
+
+{% if ordenes %}
+<table style="width:100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background-color:#007bff; color:white;">
+            <th style="border: 1px solid #ddd; padding: 8px;">ID Orden</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Fecha</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Producto</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Cantidad</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Precio Unitario</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Total Orden</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for orden in ordenes %}
+            {% for detalle in orden.detalles.all %}
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align:center;">{{ orden.id }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ orden.fecha|date:"d/m/Y H:i" }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{ detalle.producto.nombre }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align:center;">{{ detalle.cantidad }}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align:right;">
+                    ${{ detalle.precio_unitario|floatformat:0|intcomma }}
+                </td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align:right;">
+                    ${{ orden.total|floatformat:0|intcomma }}
+                </td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No tienes órdenes registradas.</p>
+{% endif %}
+
+{% endblock %}

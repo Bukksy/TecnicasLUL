@@ -1,0 +1,476 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 500px;
+  gap: 10px;
+
+  > div {
+    flex: 0 0 230px;
+    border-radius: 0.5rem;
+    transition: 0.5s ease-in-out;
+    cursor: pointer;
+    box-shadow: 1px 5px 15px #1e0e3e;
+    position: relative;
+    overflow: hidden;
+
+    &:nth-of-type(1) {
+      background: url("/static/img/share-fb.jpg")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(2) {
+      background: url("/static/img/D_NQ_NP_789675-MLC76554848379_052024-O-pokemon-tcg-sobre-10-cartas-edicion-151-espanol-original.webp")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(3) {
+      background: url("/static/img/A17788.avif")
+        no-repeat 50% / cover;
+    }
+    &:nth-of-type(4) {
+      background: url("/static/img/logotipo-lujo-tcg-corona-iniciales-elegantes-logotipo-letra-tcg-marcas-exclusivas-carta-monograma-tcg-empresas-alta-gama_1101554-51523.avif")
+        no-repeat 50% / cover;
+    }
+
+    .content {
+      font-size: 1.5rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      opacity: 0;
+      flex-direction: column;
+      height: 100%;
+      justify-content: flex-end;
+      background: rgb(2, 2, 46);
+      background: linear-gradient(
+        0deg,
+        rgba(2, 2, 46, 0.6755077030812324) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: translatey(100%);
+      transition: opacity 0.5s ease-in-out, transform 0.5s 0.2s;
+      visibility: hidden;
+
+      span {
+        display: block;
+        margin-top: 5px;
+        font-size: 1.2rem;
+      }
+    }
+
+    &:hover {
+      flex: 0 0 250px;
+      box-shadow: 1px 3px 15px #7645d8;
+      transform: translatey(-30px);
+    }
+
+    &:hover .content {
+      opacity: 1;
+      transform: translatey(0%);
+      visibility: visible;
+    }
+  }
+}
+
+h3{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.submenu {
+    text-align: center;
+      display: none;
+      flex-direction: column;
+      margin-left: 15px;
+      width: 200px;
+      gap: 10px;
+    }
+
+    .submenu a {
+      padding: 8px 10px;
+      font-size: 0.9em;
+      box-shadow: 1px 1px 5px white;
+      border-radius: 10px;
+      background-color: white;
+      color: #1e0e3e;
+    }
+
+/* From Uiverse.io by prikshit_1236 */ 
+.cart-button {
+  background: linear-gradient(135deg, #2962ff, #1565c0);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.cart-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.cart-button:hover::before {
+  left: 100%;
+}
+
+.cart-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(41, 98, 255, 0.4);
+}
+
+.cart-button:active {
+  transform: scale(0.95);
+}
+
+.cart-icon {
+  display: inline-block;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.cart-icon svg {
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+}
+
+.cart-button:hover .cart-icon svg {
+  transform: scale(1.1);
+}
+
+@keyframes addedToCart {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.4) rotate(45deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes progress {
+  0% {
+    width: 0;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  width: 0;
+}
+
+.adding {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.adding .progress-bar {
+  animation: progress 1s ease-in-out;
+}
+
+.success .cart-icon {
+  animation: addedToCart 0.5s ease-in-out;
+}
+
+.cart-button {
+  transition:
+    all 0.3s ease,
+    color 0.2s ease;
+}
+
+.cart-button:hover {
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 1px;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.success .success-icon {
+  display: block !important;
+  animation: checkmark 0.5s ease-in-out forwards;
+}
+
+.cart-button {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.cart-button:active {
+  transform: scale(0.95) translateY(2px);
+  box-shadow: 0 0 5px rgba(41, 98, 255, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-button {
+    transition: none;
+  }
+
+  .cart-button:hover,
+  .cart-button:active {
+    animation: none;
+    transform: none;
+  }
+}
+
+.cart-button {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  background: linear-gradient(135deg, #2962ff, #1565c0);
+  transform: translateZ(0);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cart-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+.cart-button:active {
+  transform: translateY(2px) translateZ(-5px);
+  box-shadow: 0 0 5px rgba(41, 98, 255, 0.2);
+}
+
+.cart-button:hover {
+  transform: translateZ(10px) scale(1.02);
+  box-shadow:
+    0 4px 15px rgba(41, 98, 255, 0.4),
+    0 0 20px rgba(41, 98, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.cart-icon {
+  transform: translateZ(5px);
+}
+
+.progress-bar {
+  transform: translateZ(2px);
+}
+
+.cart-button {
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(41, 98, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.cart-button {
+  background: linear-gradient(135deg, #2962ff, #1565c0);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  background: linear-gradient(135deg, #2962ff, #1565c0);
+  transform: translateZ(0);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(41, 98, 255, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  overflow: hidden;
+
+  transition:
+    all 0.3s ease,
+    transform 0.2s ease;
+}
+
+@media (hover: hover) {
+  .cart-button:hover {
+    transform: translateZ(10px) rotateX(2deg) rotateY(2deg) scale(1.02);
+    box-shadow:
+      0 4px 15px rgba(41, 98, 255, 0.4),
+      0 0 20px rgba(41, 98, 255, 0.1),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+.cart-button:hover {
+  transform: translateZ(10px);
+  background: linear-gradient(135deg, #3d7fff, #1976d2);
+  box-shadow:
+    0 8px 25px rgba(41, 98, 255, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+    0 0 20px rgba(41, 98, 255, 0.2),
+    0 0 0 4px rgba(41, 98, 255, 0.1);
+  letter-spacing: 1px;
+}
+
+.cart-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  );
+  border-radius: 25px 25px 100px 100px;
+}
+
+.cart-button:active {
+  transform: translateY(2px) translateZ(-5px);
+  box-shadow:
+    0 4px 15px rgba(41, 98, 255, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+@keyframes subtle-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(41, 98, 255, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(41, 98, 255, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(41, 98, 255, 0);
+  }
+}
+
+.cart-button {
+  animation: subtle-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.success {
+  background: linear-gradient(135deg, #00c853, #009624) !important;
+  transform: translateZ(5px);
+  box-shadow:
+    0 4px 15px rgba(0, 200, 83, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.success .cart-icon {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+
+.cart-button {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.cart-toggle:checked + .cart-button {
+  pointer-events: none;
+  animation: addToCart 1.5s ease-in-out forwards;
+}
+
+@keyframes addToCart {
+  0% {
+    pointer-events: none;
+    opacity: 0.8;
+  }
+  66% {
+    background: linear-gradient(135deg, #2962ff, #1565c0);
+  }
+  67% {
+    background: linear-gradient(135deg, #00c853, #009624);
+  }
+  100% {
+    pointer-events: all;
+    opacity: 1;
+  }
+}
+
+.cart-toggle:checked + .cart-button .progress-bar {
+  animation: progress 1s ease-in-out;
+}
+
+.cart-toggle:checked + .cart-button .cart-icon {
+  animation: addedToCart 0.5s ease-in-out 1s;
+}
+
+/* Auto-reset checkbox after animation */
+.cart-toggle:checked {
+  animation: reset 0.1s 1.5s forwards;
+}
+
+@keyframes reset {
+  to {
+    checked: false;
+  }
+}
+
+/* Hide default checkbox */
+.cart-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+

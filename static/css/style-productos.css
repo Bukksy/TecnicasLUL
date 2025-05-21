@@ -1,0 +1,212 @@
+@font-face {
+    font-family: 'Fuente1';
+    src: url('../fonts/WorkforceCombine_PERSONAL_USE_ONLY.otf') format('OpenType');
+}
+
+@font-face {
+    font-family: 'Fuente2';
+    src: url('../fonts/Krisha-Regular.otf') format('OpenType');
+}
+
+#titulo{
+    font-family: 'Fuente1';
+    font-size: 20px;
+}
+
+.modal-body {
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.titulos{
+    font-family: 'Fuente2';
+    font-size: 80px;
+    background: linear-gradient(to bottom, #424242, #212121);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Sidebar fijo */
+body {
+    display: flex;
+    margin-top: 50px;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.sidebar {
+    width: 240px;
+    background-color: #343a40;
+    color: #fff;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 56px; /* Altura navbar */
+    bottom: 0;
+    padding-top: 1rem;
+}
+.sidebar a {
+    color: #adb5bd;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.sidebar a:hover,
+.sidebar a.activo {
+    background-color: #495057;
+    color: #fff;
+    border-left-color: #0d6efd;
+}
+
+.main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 56px);
+}
+
+/* Tarjetas estilo bootstrap */
+.card-title {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Tabla centrada */
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Export button */
+.export-btn {
+    margin-bottom: 1rem;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        top: 0;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 1rem;
+    }
+}
+
+.main-content {
+    margin-top: 0px;
+    margin-left: 250px;
+    padding: 20px;
+    background-color: white;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px 20px;
+}
+
+/* Estilo por defecto del enlace activo */
+.sidebar .activo {
+    background-color: #555;
+    color: white;
+}
+
+/* Los enlaces cambian de fondo cuando el mouse pasa sobre ellos */
+.sidebar a:hover {
+    background-color: #555;
+    color: white;
+}
+
+.modal-dialog {
+    align-items: center;
+    justify-content: center;
+    display: grid;
+    max-width: 600px; /* Puedes ajustar el tamaño máximo si lo deseas */
+    margin: auto; /* Centrar el modal horizontalmente */
+    top: 20%; /* Posicionar el modal verticalmente en el centro */
+    left: 0%;
+}
+
+/* Estilo para el contenedor del modal */
+.modal-body {
+    display: flex; /* Flexbox para poner la imagen y la información en línea */
+    justify-content: space-between; /* Espacio entre la imagen y la información */
+    align-items: center; /* Centrado vertical */
+}
+
+/* Estilo para la imagen */
+.modal-image-container img {
+    max-width: 100%; /* La imagen se ajusta al tamaño del contenedor */
+    max-height: 300px; /* Limitar la altura máxima de la imagen */
+    object-fit: cover; /* Asegura que la imagen se ajuste sin perder proporciones */
+}
+
+
+.modal-info-container {
+    flex: 1;
+    padding: 10px;
+}
+
+.modal-info-container h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.modal-info-container p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#boton{
+    background-color: orange;
+    border: none;
+    box-shadow: 1px 1px 5px black;
+    padding: 20px;
+}
+
+.botones {
+    position: fixed;
+    display: flex;
+    bottom: 20px;
+    width: 100%;
+    height: 50px;
+    gap: 10px;
+
+    align-items: center;
+    justify-content: center;
+
+    left: 120px;
+    z-index: 9999;
+}
+
+
+.botones button{
+    padding: 15px;
+    text-align: center;
+
+    border-radius: 20px;
+    box-shadow: 0px 5px 3px black;
+}
+
+#agregar{
+    background-color: #9bfab0;
+
+}
+
+#modificar{
+    background-color: orange;
+}

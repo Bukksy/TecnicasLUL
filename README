@@ -1,0 +1,3 @@
+Para hacer funcionar la base de datos:
+
+python manage.py loaddata data.json

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style-editar.css' %}">
+</head>
+<body>
+    <div class="contenedor">
+        <div class="formulario">
+            <h2>Selecciona un producto para editar</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <select style="padding: 10px; font-size: 18px; border-radius: 10px;" name="producto_id" required>
+                    <option value="" disabled selected>Selecciona un producto</option>
+                    {% for producto in productos %}
+                        <option value="{{ producto.id }}">{{ producto.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <button style="background-color: orange; border: none; border-radius: 10px; color: white; height: 40px; font-size: 18px; margin-top: 10px;" type="submit">Editar</button>
+            </form> 
+        </div>
+    </div>
+</body>
+</html>
