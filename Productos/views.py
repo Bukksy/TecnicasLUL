@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden, Categoria, Categoria_producto, OnepieceCards, PokemonCard
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db import transaction
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse, HttpResponse
 import openpyxl
-from django.core.paginator import Paginator
+from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
+
 
 def es_admin(user):
     return user.is_staff
@@ -58,8 +59,18 @@ def productos_view(request):
     page_number = request.GET.get('page', '1')
     
     if page_number == '1':
-        productos = Producto.objects.select_related('categoria', 'CategoriaProd').all().order_by('id')
-        context = {'productos': productos, 'current_page': 1}
+        productos = Producto.objects.filter(id__isnull=False).select_related('categoria', 'CategoriaProd').order_by('id')
+        productos_data = []
+        for carta in productos:
+            productos_data.append({
+                'id': carta.id,
+                'nombre': carta.nombre,
+                'descripcion': carta.descripcion,
+                'imagen': carta.imagen,
+                'precio': carta.precio,
+                'stock': carta.stock,
+            })
+        context = {'productos': productos_data, 'current_page': 1}
     
     elif page_number == '2':
         onepiececards = OnepieceCards.objects.all().order_by('id')
@@ -175,81 +186,112 @@ def eliminar_producto(request, id):
     producto.delete()
     return redirect('productos_views')
 
-
-@login_required
-def ver_carrito(request):
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    items = carrito.items.select_related('producto')
-    total = sum(item.subtotal() for item in items)
-    return render(request, 'carrito_view.html', {'items': items, 'total': total})
-
-
-@login_required
-def agregar_al_carrito(request, producto_id):
-    producto = get_object_or_404(Producto, id=producto_id)
-    cantidad = int(request.POST.get('cantidad', 1))
-
-    if cantidad <= 0:
-        return JsonResponse({'error': 'La cantidad debe ser al menos 1'}, status=400)
-    
-    if cantidad > producto.stock:
-        return JsonResponse({'error': f'No hay suficiente stock de {producto.nombre}'}, status=400)
-
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-    
-    item, created = ItemCarrito.objects.get_or_create(carrito=carrito, producto=producto)
-    item.cantidad = cantidad
-    item.save()
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'mensaje': f'{producto.nombre} agregado al carrito', 'cantidad': item.cantidad})
-
-    return redirect('ver_carrito')
-
-
-@login_required
-def quitar_del_carrito(request, item_id):
-    item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
-    item.delete()
-    return redirect('ver_carrito')
-
-
-@login_required
-def finalizar_compra(request):
-    carrito = get_object_or_404(Carrito, usuario=request.user)
-    items = carrito.items.select_related('producto')
-
-    if not items.exists():
-        return redirect('ver_carrito')
-
-    total = sum(item.subtotal() for item in items)
-
-    with transaction.atomic():
-        orden = OrdenCompra.objects.create(usuario=request.user, total=total)
-        for item in items:
-            DetalleOrden.objects.create(
-                orden=orden,
-                producto=item.producto,
-                cantidad=item.cantidad,
-                precio_unitario=item.producto.precio
-            )
-            item.producto.stock -= item.cantidad
-            item.producto.save()
-        items.delete()
-
-    return render(request, 'orden_exitosa.html', {'total': total})
-
-
 @login_required
 @user_passes_test(es_admin)
 def historial_ordenes(request):
     ordenes = OrdenCompra.objects.filter(usuario=request.user).order_by('-fecha')
     return render(request, 'historial_ordenes.html', {'ordenes': ordenes})
 
+@login_required
+def ver_carrito(request):
+    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+    productos_carrito = carrito.items.all()
+    
+    carrito_total = 0
+    for item in productos_carrito:
+        # Si subtotal es método, usar item.subtotal()
+        carrito_total += item.subtotal if not callable(item.subtotal) else item.subtotal()
 
-@staff_member_required
-@user_passes_test(es_admin)
-def limpiar_historial_compras(request):
-    DetalleOrden.objects.all().delete()
-    OrdenCompra.objects.all().delete()
-    return redirect('productos_views')
+    context = {
+        'carrito': carrito,
+        'productos_carrito': productos_carrito,
+        'carrito_total': carrito_total,
+    }
+    return render(request, 'carrito/ver_carrito.html', context)
+
+@login_required
+def agregar_al_carrito(request, tipo_producto, producto_id):
+    modelos = {
+        'producto': Producto,
+        'onepiececard': OnepieceCards,
+        'pokemoncard': PokemonCard,
+    }
+
+    modelo = modelos.get(tipo_producto.lower())
+    if not modelo:
+        messages.error(request, "Tipo de producto inválido.")
+        return redirect('productos_views')
+
+    producto = get_object_or_404(modelo, id=producto_id)
+
+    if hasattr(producto, 'stock') and producto.stock <= 0:
+        messages.error(request, f'El producto "{producto}" está agotado.')
+        return redirect('productos_views')
+
+    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+
+    content_type = ContentType.objects.get_for_model(modelo)
+    item, creado = ItemCarrito.objects.get_or_create(
+        carrito=carrito,
+        content_type=content_type,
+        object_id=producto.id
+    )
+
+    if not creado:
+        item.cantidad += 1
+    item.save()
+
+    messages.success(request, f'Se agregó {producto} al carrito.')
+    return redirect('ver_carrito')
+
+@login_required
+def eliminar_del_carrito(request, item_id):
+    item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
+    item.delete()
+    messages.info(request, 'Producto eliminado del carrito.')
+    return redirect('ver_carrito')
+
+@login_required
+def vaciar_carrito(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    carrito.carrito.items.all().delete()
+    messages.info(request, 'Carrito vaciado.')
+    return redirect('ver_carrito')
+
+@login_required
+def confirmar_compra(request):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    items = carrito.items.all()
+
+    for item in items:
+        if item.cantidad > item.producto.stock:
+            messages.error(request, f'Stock insuficiente para {item.producto.nombre}.')
+            return redirect('ver_carrito')
+
+    orden = OrdenCompra.objects.create(usuario=request.user, total=0)
+    total_compra = 0
+
+    for item in items:
+        producto = item.producto
+        producto.stock -= item.cantidad
+        producto.save()
+
+        DetalleOrden.objects.create(
+            orden=orden,
+            producto=producto,
+            cantidad=item.cantidad,
+            precio_unitario=producto.precio_producto
+        )
+
+        total_compra += item.cantidad * producto.precio_producto
+
+    orden.total = total_compra
+    orden.save()
+
+    items.delete()
+
+    return redirect('compra_exitosa')
+
+
+def compra_exitosa(request):
+    return render(request, 'carrito/compra_exitosa.html')

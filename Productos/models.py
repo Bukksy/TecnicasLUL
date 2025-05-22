@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -36,15 +38,24 @@ class Carrito(models.Model):
     
 class ItemCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='items')
-    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    producto = GenericForeignKey('content_type', 'object_id')
     cantidad = models.PositiveBigIntegerField(default=1)
 
+    @property
     def subtotal(self):
-        return self.cantidad*self.producto.precio
-    
-    def __str__(self):
-        return f"{self.cantidad} x {self.producto.nombre}"
+        return self.cantidad * self.get_precio()
 
+    def get_precio(self):
+        if hasattr(self.producto, 'precio') and self.producto.precio is not None:
+            return self.producto.precio
+        elif hasattr(self.producto, 'precio_local') and self.producto.precio_local is not None:
+            return self.producto.precio_local
+        return 0
+
+    def __str__(self):
+        return f"{self.cantidad} x {str(self.producto)}"
 
 class OrdenCompra(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -122,3 +133,4 @@ class DetalleOrdenPokemon(models.Model):
 
     def subtotal(self):
         return self.cantidad * self.precio_unitario
+    

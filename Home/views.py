@@ -229,16 +229,23 @@ def resumenInventario(request):
     labels = [p['producto'].nombre if not isinstance(p['producto'], dict) else p['producto']['nombre'] for p in productos_con_total]
     datos_stock = [p['producto'].stock if not isinstance(p['producto'], dict) else 1 for p in productos_con_total]
 
-    lista_mas_vendidos = []
-    for lista in [prod_normales, prod_onepiece, prod_pokemon]:
-        for item in lista:
-            total_vendido = item.get('total_vendido', 0)
-            lista_mas_vendidos.append({
-                'producto': item['producto'],
-                'total_vendido': total_vendido
-            })
+    mas_vendidos_data = (
+        DetalleOrden.objects
+        .values('producto')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:5]
+    )
 
-    mas_vendidos = sorted(lista_mas_vendidos, key=lambda x: x['total_vendido'], reverse=True)[:5]
+    mas_vendidos = []
+    for item in mas_vendidos_data:
+        try:
+            producto = Producto.objects.get(id=item['producto'])
+            mas_vendidos.append({
+                'producto': producto,
+                'total_vendido': item['total_vendido']
+            })
+        except Producto.DoesNotExist:
+            continue
 
     context = {
         'productos_con_total': productos_con_total,
@@ -257,9 +264,6 @@ def resumenInventario(request):
     }
 
     return render(request, 'resumenInventario.html', context)
-
-
-
 
 
 @login_required
