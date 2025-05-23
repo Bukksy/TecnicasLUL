@@ -74,9 +74,11 @@ class OrdenCompra(models.Model):
 
 class DetalleOrden(models.Model):
     orden = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='detalles')
-    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    producto = GenericForeignKey('content_type', 'object_id')
     cantidad = models.PositiveIntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=100, decimal_places=2)
 
     def subtotal(self):
         return self.cantidad * self.precio_unitario

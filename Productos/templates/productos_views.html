@@ -191,7 +191,7 @@
                                 <td style="width: 300px;">
                                     <form id="form-compra-{{ card.id }}" action="{% url 'agregar_al_carrito' 'onepiececard' card.id %}" method="post" class="d-flex gap-2 align-items-center">
                                         {% csrf_token %}
-                                        <input type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
+                                        <input type="number" name="cantidad" min="1" max="{{ card.stock_local }}" value="1" required
                                             class="form-control form-control-sm" style="height: 50px;">
                                         <button type="button" onclick="confirmarCompra('{{ card.id }}')" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
                                             Comprar

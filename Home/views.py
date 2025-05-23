@@ -231,20 +231,21 @@ def resumenInventario(request):
 
     mas_vendidos_data = (
         DetalleOrden.objects
-        .values('producto')
+        .values('content_type', 'object_id')
         .annotate(total_vendido=Sum('cantidad'))
         .order_by('-total_vendido')[:5]
     )
 
     mas_vendidos = []
     for item in mas_vendidos_data:
+        content_type = ContentType.objects.get_for_id(item['content_type'])
         try:
-            producto = Producto.objects.get(id=item['producto'])
+            producto = content_type.get_object_for_this_type(id=item['object_id'])
             mas_vendidos.append({
                 'producto': producto,
                 'total_vendido': item['total_vendido']
             })
-        except Producto.DoesNotExist:
+        except:
             continue
 
     context = {

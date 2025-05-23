@@ -20,12 +20,18 @@
                 <tr>
                     <td>{{ item.producto.nombre }}</td>
                     <td>{{ item.cantidad }}</td>
-                    <td>${{ item.producto.precio|floatformat:0 }}</td>
                     <td>
                         {% if item.producto.precio_local %}
                             ${{ item.producto.precio_local|floatformat:0 }}
-                        {% elif item.producto.precio %}
+                        {% else %}
                             ${{ item.producto.precio|floatformat:0 }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.producto.precio_local %}
+                            ${{ item.subtotal|floatformat:0 }}
+                        {% elif item.producto.precio %}
+                            ${{ item.subtotal|floatformat:0 }}
                         {% else %}
                             No disponible
                         {% endif %}

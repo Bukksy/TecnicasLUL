@@ -199,8 +199,7 @@ def ver_carrito(request):
     
     carrito_total = 0
     for item in productos_carrito:
-        # Si subtotal es método, usar item.subtotal()
-        carrito_total += item.subtotal if not callable(item.subtotal) else item.subtotal()
+        carrito_total += item.subtotal
 
     context = {
         'carrito': carrito,
@@ -254,7 +253,7 @@ def eliminar_del_carrito(request, item_id):
 @login_required
 def vaciar_carrito(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
-    carrito.carrito.items.all().delete()
+    carrito.items.all().delete()
     messages.info(request, 'Carrito vaciado.')
     return redirect('ver_carrito')
 
@@ -276,14 +275,19 @@ def confirmar_compra(request):
         producto.stock -= item.cantidad
         producto.save()
 
+        if hasattr(producto, 'precio_local') and producto.precio_local:
+            precio_unitario = producto.precio_local
+        else:
+            precio_unitario = producto.precio
+
         DetalleOrden.objects.create(
             orden=orden,
             producto=producto,
             cantidad=item.cantidad,
-            precio_unitario=producto.precio_producto
+            precio_unitario=precio_unitario
         )
 
-        total_compra += item.cantidad * producto.precio_producto
+        total_compra += item.cantidad * precio_unitario
 
     orden.total = total_compra
     orden.save()
@@ -291,6 +295,7 @@ def confirmar_compra(request):
     items.delete()
 
     return redirect('compra_exitosa')
+
 
 
 def compra_exitosa(request):
