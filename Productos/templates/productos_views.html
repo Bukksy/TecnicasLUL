@@ -78,12 +78,12 @@
                             <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'Home:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link" href="{% url 'Home:login' %}">Login</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -93,16 +93,16 @@
 
     <!-- Sidebar -->
     <nav class="sidebar" aria-label="Menú lateral">
-        <a href="{% url 'inicio' %}" class="{% if request.path == '/inicio' %}activo{% endif %}">
+        <a href="{% url 'Home:inicio' %}" class="{% if request.path == '/inicio' %}activo{% endif %}">
             <i class="bi bi-house-door"></i> Inicio
         </a>
-        <a href="{% url 'productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
+        <a href="{% url 'Productos:productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
             <i class="bi bi-box-seam"></i> Productos
         </a>
-        <a href="{% url 'resumenInventario' %}" class="{% if request.path == '/resumen-inventario/' %}activo{% endif %}">
+        <a href="{% url 'Home:resumenInventario' %}" class="{% if request.path == '/resumen-inventario/' %}activo{% endif %}">
             <i class="bi bi-bar-chart-line"></i> Dashboard
         </a>
-        <a href="{% url 'historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
+        <a href="{% url 'Productos:historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
             <i class="bi bi-clock-history"></i> Historial de órdenes
         </a>
     </nav>
@@ -141,14 +141,14 @@
                                 </div>
                             </td>
                             <td style="width: 350px;">
-                                <form id="form-compra-{{ producto.id }}" action="{% url 'agregar_al_carrito' 'producto'  producto.id %}" method="post" class="d-flex gap-2 align-items-center">
-                                        {% csrf_token %}
-                                        <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required
-                                            class="form-control form-control-sm" style="height: 50px;">
-                                        <button type="button" onclick="confirmarCompra('{{ producto.id }}')" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
-                                            Comprar
-                                        </button>
-                                 </form>
+                                <form id="form-compra-{{ producto.id }}" action="{% url 'Productos:agregar_al_carrito' 'producto' producto.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                    {% csrf_token %}
+                                    <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required
+                                        class="form-control form-control-sm" style="height: 50px;">
+                                    <button type="submit" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
+                                        Comprar
+                                    </button>
+                                </form>
                             </td>
                             <td style="display: grid; justify-content: center; align-items: center;">
                                 <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ producto.id }}')">Eliminar</button>
@@ -189,7 +189,7 @@
                                     </div>
                                 </td>
                                 <td style="width: 300px;">
-                                    <form id="form-compra-{{ card.id }}" action="{% url 'agregar_al_carrito' 'onepiececard' card.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                    <form id="form-compra-{{ card.id }}" action="{% url 'Productos:agregar_al_carrito' 'onepiececard' card.id %}" method="post" class="d-flex gap-2 align-items-center">
                                         {% csrf_token %}
                                         <input type="number" name="cantidad" min="1" max="{{ card.stock_local }}" value="1" required
                                             class="form-control form-control-sm" style="height: 50px;">
@@ -242,7 +242,7 @@
                                     </div>
                                 </td>
                                 <td style="width: 300px;">
-                                    <form id="form-compra-{{ card.id }}" action="{% url 'agregar_al_carrito' 'pokemoncard' card.id %}" method="post" class="d-flex gap-2 align-items-center">
+                                    <form id="form-compra-{{ card.id }}" action="{% url 'Productos:agregar_al_carrito' 'pokemoncard' card.id %}" method="post" class="d-flex gap-2 align-items-center">
                                         {% csrf_token %}
                                         <input type="number" name="cantidad" min="1" max="{{ card.stock }}" value="1" required
                                             class="form-control form-control-sm" style="height: 50px;">
@@ -292,10 +292,10 @@
     </div>
 
     <div class="botones">
-        <a href="{% url 'agregar' %}">
+        <a href="{% url 'Productos:agregar' %}">
             <button id="agregar">Agregar Producto</button>
         </a> 
-        <a href="{% url 'editar' %}">
+        <a href="{% url 'Productos:editar' %}">
             <button id="modificar">Modificar Productos</button>
         </a> 
     </div>
@@ -407,7 +407,7 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let baseUrl = "{% url 'eliminar_producto' 0 %}".replace("0", idProducto);
+                    let baseUrl = "{% url 'Productos:eliminar_producto' 0 %}".replace("0", idProducto);
                     window.location.href = baseUrl;
                 }
             });
@@ -415,30 +415,6 @@
     </script>
     
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const links = document.querySelectorAll('.sidebar a');
-            let activeLink = document.querySelector('.activo');  // Enlace activo inicial
-    
-            // Cambiar el fondo del enlace cuando el mouse pasa sobre otros enlaces
-            links.forEach(link => {
-                link.addEventListener('mouseover', function() {
-                    // Quitar el fondo activo de todos los enlaces
-                    links.forEach(l => l.classList.remove('activo'));
-                    
-                    // Agregar el fondo al enlace sobre el que se pasa el mouse
-                    link.classList.add('activo');
-                });
-    
-                // Cuando el mouse sale de un enlace, el fondo vuelve al enlace "Inicio"
-                link.addEventListener('mouseleave', function() {
-                    // Volver el fondo a "Inicio" (el primer enlace)
-                    links.forEach(l => l.classList.remove('activo'));
-                    activeLink.classList.add('activo');  
-                    
-                });
-            });
-            
-        });
         function confirmarCompra(id) {
             const form = document.getElementById(`form-compra-${id}`);
             const cantidad = form.querySelector('input[name="cantidad"]').value;

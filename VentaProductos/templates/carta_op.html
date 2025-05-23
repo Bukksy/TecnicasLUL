@@ -13,12 +13,20 @@
         <div class="card-body">
             <h5 class="card-title" style="font-size: 20px;">{{ carta.nombre }}</h5>
             <p class="card-text"><strong>Tipo:</strong> {{ carta.tipo|default:"N/A" }}</p>
-            <p class="card-text"><strong>Precio:</strong> ${{ carta.precio|default:"N/A"|floatformat:0|intcomma }}</p>
+            <p class="card-text"><strong>Precio:</strong> ${{ carta.precio_local|default:"N/A"|floatformat:0|intcomma }}</p>
             <p class="card-text"><strong>Stock:</strong> {{ carta.stock }}</p>
             <button class="btn btn-outline-primary btn-sm mt-2"
-                    onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
+                    onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio_local }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
                 Ver más
             </button>
+            <form id="form-compra-{{ carta.id }}" action="{% url 'Productos:agregar_al_carrito' 'onepiececard' carta.id %}" method="post" class="d-flex gap-2 align-items-center">
+                {% csrf_token %}
+                <input type="number" name="cantidad" min="1" max="{{ carta.stock }}" value="1" required
+                    class="form-control form-control-sm" style="height: 50px;">
+                <button type="submit" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
+                    Comprar
+                </button>
+            </form>
         </div>
     </div>
 </div>

@@ -28,11 +28,11 @@
                             <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'Home:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'Home:login' %}">Login</a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -41,38 +41,14 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <a href="{% url 'inicio' %}">Inicio</a>
+        <a href="{% url 'InicioClientes:inicio' %}">Inicio</a>
         <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()">Productos ▾</a>
         <div id="submenu" class="submenu">
             <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
             <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
             <a href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
         </div>
-        <input hidden="" class="cart-toggle" id="cart-toggle" type="checkbox" style="position: fixed; bottom: 20px; width: 12.4%; z-index: 1050;"/>
-            <label class="cart-button" for="cart-toggle" style="position: fixed; bottom: 20px; width: 240px; z-index: 1050;">
-                <span class="cart-icon">
-                    <svg
-                        stroke-linejoin="round"
-                        stroke-linecap="round"
-                        stroke-width="2"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        height="24"
-                        width="24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <circle r="1" cy="21" cx="9"></circle>
-                        <circle r="1" cy="21" cx="20"></circle>
-                        <path
-                            d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
-                        ></path>
-                    </svg>
-                </span>
-
-                Ver Carrito
-                <div class="progress-bar"></div>
-            </label>
+        <a style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
         <a href="{% url 'VentasProductos:cartas_pokemon' %}" class="activo">Cartas Pokemon</a>
         <a href="{% url 'VentasProductos:cartas_onepiece' %}">Cartas OnePiece</a>
     </div>

@@ -98,12 +98,12 @@
                             <i class="bi bi-person-circle fs-4 me-1"></i> Hola, <strong>{{ user.username }}</strong>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'Home:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link fw-semibold" href="{% url 'Home:login' %}">Login</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -113,16 +113,16 @@
 
     <!-- Sidebar -->
     <nav class="sidebar" aria-label="Menú lateral">
-        <a href="{% url 'inicio' %}" class="{% if request.path == '/inicio/' %}activo{% endif %}">
+        <a href="{% url 'Home:inicio' %}" class="{% if request.path == '/inicio/' %}activo{% endif %}">
             <i class="bi bi-house-door-fill me-2"></i> Inicio
         </a>
-        <a href="{% url 'productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
+        <a href="{% url 'Productos:productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
             <i class="bi bi-box-seam me-2"></i> Productos
         </a>
-        <a href="{% url 'resumenInventario' %}" class="activo">
+        <a href="{% url 'Home:resumenInventario' %}" class="activo">
             <i class="bi bi-bar-chart-line-fill me-2"></i> Dashboard
         </a>
-        <a href="{% url 'historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
+        <a href="{% url 'Productos:historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
             <i class="bi bi-clock-history me-2"></i> Historial de órdenes
         </a>
     </nav>
@@ -183,7 +183,7 @@
 
         <!-- Exportar -->
         <div class="d-flex justify-content-end mb-4">
-            <a href="{% url 'exportar_excel' %}" class="btn btn-primary export-btn" title="Exportar productos a Excel">
+            <a href="{% url 'Home:exportar_excel' %}" class="btn btn-primary export-btn" title="Exportar productos a Excel">
                 <i class="bi bi-file-earmark-excel me-2"></i> Exportar a Excel
             </a>
         </div>

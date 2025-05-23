@@ -37,7 +37,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        <form action="{% url 'eliminar_del_carrito' item.id %}" method="post" class="d-inline">
+                        <form action="{% url 'Productos:eliminar_del_carrito' item.id %}" method="post" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
                                 <i class="bi bi-trash"></i>
@@ -53,12 +53,12 @@
             <h4>Total: <span class="text-success">${{ carrito_total|floatformat:0 }}</span></h4>
 
             <div>
-                <form action="{% url 'vaciar_carrito' %}" method="post" class="d-inline">
+                <form action="{% url 'Productos:vaciar_carrito' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-warning me-2">Vaciar carrito</button>
                 </form>
 
-                <form action="{% url 'confirmar_compra' %}" method="post" class="d-inline">
+                <form action="{% url 'Productos:confirmar_compra' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary">Confirmar compra</button>
                 </form>

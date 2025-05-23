@@ -32,12 +32,12 @@
                             <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'Home:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link" href="{% url 'Home:login' %}">Login</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -47,38 +47,14 @@
     
 
     <div class="sidebar">
-        <a href="{% url 'inicio' %}">Inicio</a>
+        <a href="{% url 'InicioClientes:inicio' %}">Inicio</a>
         <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()" class="activo">Productos ▾</a>
         <div id="submenu" class="submenu">
             <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
             <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
             <a class="activo" href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
         </div>
-            <input hidden="" class="cart-toggle" id="cart-toggle" type="checkbox" style="position: fixed; bottom: 20px; width: 12.4%; z-index: 1050;"/>
-            <label class="cart-button" for="cart-toggle" style="position: fixed; bottom: 20px; width: 240px; z-index: 1050;">
-                <span class="cart-icon">
-                    <svg
-                        stroke-linejoin="round"
-                        stroke-linecap="round"
-                        stroke-width="2"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        height="24"
-                        width="24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <circle r="1" cy="21" cx="9"></circle>
-                        <circle r="1" cy="21" cx="20"></circle>
-                        <path
-                            d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
-                        ></path>
-                    </svg>
-                </span>
-
-                Ver Carrito
-                <div class="progress-bar"></div>
-            </label>
+            <a style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
             <a href="{% url 'VentasProductos:cartas_pokemon' %}">Cartas Pokemon</a>
             <a href="{% url 'VentasProductos:cartas_onepiece' %}">Cartas OnePiece</a>
     </div>
@@ -86,42 +62,38 @@
     <div class="main-content" style="text-align: center; margin-top: 50px;">
     <h1 class="titulos">One Piece</h1>
     <div class="container-fluid" style="max-height: 750px; overflow-y: auto;">
-        <form method="get" action=".">
-            <input type="text" name="nombre" placeholder="Buscar por nombre" value="{{ nombre }}">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
+        {% for carta in productos %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {% if carta.imagen %}
+                        <img src="{{ carta.imagen.url }}" class="card-img-top img-fluid" alt="{{ carta.nombre }}" style="object-fit: contain; height: auto; max-height: 300px;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                            <span class="text-muted">Sin imagen</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ carta.nombre }}</h5>
+                        <p class="card-text">{{ carta.descripcion|truncatewords:15 }}</p>
+                        <button class="btn btn-outline-primary btn-sm mt-2"
+                            onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
+                            Ver más
+                        </button>
+                        <form id="form-compra-{{ carta.id }}" action="{% url 'Productos:agregar_al_carrito' 'onepiececard' carta.id %}" method="post" class="d-flex gap-2 align-items-center">
+                            {% csrf_token %}
+                            <input type="number" name="cantidad" min="1" max="{{ carta.stock }}" value="1" required
+                                class="form-control form-control-sm" style="height: 50px;">
+                            <button type="submit" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
+                                Comprar
+                            </button>
+                        </form>
 
-            <select name="tipo">
-                <option value="">-- Todos los tipos --</option>
-                {% for t in tipos_disponibles %}
-                    <option value="{{ t }}" {% if tipo == t %}selected{% endif %}>{{ t }}</option>
-                {% endfor %}
-            </select>
-
-            <button type="submit">Filtrar</button>
-        </form>
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
-    {% for carta in cartas_op %}
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                {% if carta.imagen %}
-                    <img src="{{ carta.imagen.url }}" class="card-img-top img-fluid" alt="{{ carta.nombre }}" style="object-fit: contain; height: auto; max-height: 300px;">
-                {% else %}
-                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
-                        <span class="text-muted">Sin imagen</span>
                     </div>
-                {% endif %}
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ carta.nombre }}</h5>
-                    <p class="card-text">{{ carta.descripcion|truncatewords:15 }}</p>
-                    <button class="btn btn-outline-primary btn-sm mt-2"
-                        onclick="openModal('{{ carta.id }}', '{{ carta.nombre|escapejs }}', '{{ carta.descripcion|escapejs }}', '{{ carta.tipo }}', '{{ carta.precio }}', '{{ carta.stock }}', '{{ carta.imagen.url }}')">
-                        Ver más
-                    </button>
-
                 </div>
             </div>
-        </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 
     </div>
 </div>
@@ -135,7 +107,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body d-flex">
-                    <!-- Sección de imagen -->
+
                     <div class="modal-image-container">
                         <img id="modalProductoImagen" src="" alt="Imagen del Producto" class="img-fluid">
                     </div>

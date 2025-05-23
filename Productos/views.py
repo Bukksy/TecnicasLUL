@@ -26,11 +26,14 @@ def exportar_historial_excel(request):
 
     for orden in ordenes:
         for detalle in orden.detalles.all():
+            producto = detalle.producto
+            nombre_producto = getattr(producto, 'nombre', str(producto))  # Usa 'nombre' o el string del objeto
             subtotal = detalle.cantidad * detalle.precio_unitario
+
             ws.append([
                 orden.id,
                 orden.fecha.strftime('%d/%m/%Y %H:%M'),
-                detalle.producto.nombre,
+                nombre_producto,
                 detalle.cantidad,
                 detalle.precio_unitario,
                 subtotal,
@@ -122,7 +125,7 @@ def agregar(request):
             imagen=imagen
         )
 
-        return redirect('productos_views')
+        return redirect('Productos:productos_views')
 
     return render(request, 'add_prod.html', {
         'categoria': categoria,
@@ -138,7 +141,7 @@ def editar(request):
 
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
-        return redirect('editar_producto', id=producto_id)
+        return redirect('Productos:editar_producto', id=producto_id)
 
     return render(request, 'mod_prod.html', {
         'productos': productos,
@@ -171,7 +174,7 @@ def editar_producto(request, id):
             producto.imagen = request.FILES['imagen']
         
         producto.save()
-        return redirect('productos_views')
+        return redirect('Productos:productos_views')
 
     return render(request, 'edit_prod_form.html', {
         'producto': producto,
@@ -184,7 +187,7 @@ def editar_producto(request, id):
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
-    return redirect('productos_views')
+    return redirect('Productos:productos_views')
 
 @login_required
 @user_passes_test(es_admin)
@@ -219,13 +222,20 @@ def agregar_al_carrito(request, tipo_producto, producto_id):
     modelo = modelos.get(tipo_producto.lower())
     if not modelo:
         messages.error(request, "Tipo de producto inválido.")
-        return redirect('productos_views')
+        return redirect('Productos:productos_views')
 
     producto = get_object_or_404(modelo, id=producto_id)
 
     if hasattr(producto, 'stock') and producto.stock <= 0:
         messages.error(request, f'El producto "{producto}" está agotado.')
-        return redirect('productos_views')
+        return redirect('Productos:productos_views')
+
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+        if cantidad < 1:
+            cantidad = 1
+    except ValueError:
+        cantidad = 1
 
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
 
@@ -237,25 +247,28 @@ def agregar_al_carrito(request, tipo_producto, producto_id):
     )
 
     if not creado:
-        item.cantidad += 1
+        item.cantidad += cantidad
+    else:
+        item.cantidad = cantidad
+
     item.save()
 
-    messages.success(request, f'Se agregó {producto} al carrito.')
-    return redirect('ver_carrito')
+    messages.success(request, f'Se agregó {cantidad} unidad(es) de {producto} al carrito.')
+    return redirect('Productos:ver_carrito')
 
 @login_required
 def eliminar_del_carrito(request, item_id):
     item = get_object_or_404(ItemCarrito, id=item_id, carrito__usuario=request.user)
     item.delete()
     messages.info(request, 'Producto eliminado del carrito.')
-    return redirect('ver_carrito')
+    return redirect('Productos:ver_carrito')
 
 @login_required
 def vaciar_carrito(request):
     carrito = get_object_or_404(Carrito, usuario=request.user)
     carrito.items.all().delete()
     messages.info(request, 'Carrito vaciado.')
-    return redirect('ver_carrito')
+    return redirect('Productos:ver_carrito')
 
 @login_required
 def confirmar_compra(request):
@@ -265,7 +278,7 @@ def confirmar_compra(request):
     for item in items:
         if item.cantidad > item.producto.stock:
             messages.error(request, f'Stock insuficiente para {item.producto.nombre}.')
-            return redirect('ver_carrito')
+            return redirect('Productos:ver_carrito')
 
     orden = OrdenCompra.objects.create(usuario=request.user, total=0)
     total_compra = 0
@@ -294,7 +307,7 @@ def confirmar_compra(request):
 
     items.delete()
 
-    return redirect('compra_exitosa')
+    return redirect('Productos:compra_exitosa')
 
 
 

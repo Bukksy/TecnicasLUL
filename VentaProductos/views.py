@@ -22,7 +22,7 @@ def cargar_mas_cartas_onepiece(request):
     if tipo:
         cartas_op = cartas_op.filter(tipo__icontains=tipo)
 
-    paginator = Paginator(cartas_op, 50)  # 50 cartas por página
+    paginator = Paginator(cartas_op, 50) 
     cartas_pagina = paginator.get_page(page)
 
     html = render_to_string("carta_op.html", {"cartas_op": cartas_pagina})

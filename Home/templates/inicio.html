@@ -29,12 +29,12 @@
                             <i class="bi bi-person-circle"></i> Hola, {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'Home:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        <a class="nav-link" href="{% url 'Home:login' %}">Login</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -44,16 +44,16 @@
 
     <!-- Sidebar -->
     <nav class="sidebar" aria-label="Menú lateral">
-        <a href="{% url 'inicio' %}" class="{% if request.path == '/inicio' %}activo{% endif %}">
+        <a href="{% url 'Home:inicio' %}" class="activo"  class="{% if request.path == 'Home/inicio' %}activo{% endif %}">
             <i class="bi bi-house-door"></i> Inicio
         </a>
-        <a href="{% url 'productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
+        <a href="{% url 'Productos:productos_views' %}" class="{% if request.path == '/productos/' %}activo{% endif %}">
             <i class="bi bi-box-seam"></i> Productos
         </a>
-        <a href="{% url 'resumenInventario' %}" class="{% if request.path == '/resumen-inventario/' %}activo{% endif %}">
+        <a href="{% url 'Home:resumenInventario' %}" class="{% if request.path == '/resumen-inventario/' %}activo{% endif %}">
             <i class="bi bi-bar-chart-line"></i> Dashboard
         </a>
-        <a href="{% url 'historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
+        <a href="{% url 'Productos:historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
             <i class="bi bi-clock-history"></i> Historial de órdenes
         </a>
     </nav>

@@ -99,14 +99,14 @@
   <p>Gracias por tu compra. Te llegará una confirmación por correo electrónico.</p>
 
   {% if user.is_superuser %}
-  <a href="{% url 'resumenInventario' %}">
+  <a href="{% url 'Home:resumenInventario' %}">
     <button>
         <span>Dashboard</span>
     </button>
   </a>
   {% else %}
     <button>
-      <a href="{% url 'VentasProductos:inicio' %}">Productos</a>
+      <a href="{% url 'InicioClientes:inicio' %}">Inicio</a>
     </button>
   {% endif %}
 </div>

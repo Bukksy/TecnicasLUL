@@ -5,9 +5,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Home.urls')),
-    path('inicio/', include('InicioPagina.urls')),
-    path('productos/', include('Productos.urls')),
+    path('Home/', include('Home.urls')),
+    path('', include('InicioPagina.urls', namespace='Productos')),
+    path('productos/', include('Productos.urls', namespace='InicioClientes')),
     path('venta/', include('VentaProductos.urls')),
 ]
 

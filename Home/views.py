@@ -8,6 +8,8 @@ from django.db.models import Avg, Sum
 from django.contrib.auth.decorators import user_passes_test, login_required
 import json, requests
 from decimal import Decimal, InvalidOperation
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.forms import UserCreationForm
 
 def es_admin(user):
     return user.is_staff
@@ -21,11 +23,11 @@ def login(request):
 
         if user is not None:
             auth_login(request, user)  
-            return redirect('inicio')  
+            return redirect('Home:inicio')  
         else:
             messages.error(request, "Usuario o contraseña incorrectos") 
 
-        return redirect('login')
+        return redirect('Home:login')
 
     return render(request, 'login.html')
 
@@ -142,12 +144,26 @@ def inicio(request):
     if request.user.is_staff:
         return render(request, 'inicio.html', contexto)
     else:
-        return redirect('InicioPagina:inicio')
+        return redirect('InicioClientes:inicio')
 
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('Home:login')
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_staff = False  # Asegura que no es staff
+            user.is_superuser = False  # Asegura que no es admin
+            user.save()
+            auth_login(request, user)  # Iniciar sesión automáticamente
+            return redirect('InicioClientes:inicio')  # Cambia por tu vista principal
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 def obtener_productos_normales():
     productos = Producto.objects.all()
@@ -192,13 +208,11 @@ def obtener_cartas_pokemon():
         data = carta.data
         nombre = data.get('name', 'Desconocido')
 
-        # Obtener precio local o fallback a precio en cardmarket o 1.0
         precio_raw = data.get('precio_local') or data.get('cardmarket', {}).get('prices', {}).get('averageSellPrice', 1.0)
         precio = Decimal(str(precio_raw))
 
-        # Obtener stock local o fallback a 1 si no existe
         stock = data.get('stock_local', 1)
-        stock = int(stock)  # asegurar entero
+        stock = int(stock)  
 
         total = precio * stock
 
@@ -238,14 +252,16 @@ def resumenInventario(request):
 
     mas_vendidos = []
     for item in mas_vendidos_data:
-        content_type = ContentType.objects.get_for_id(item['content_type'])
         try:
+            content_type = ContentType.objects.get_for_id(item['content_type'])
             producto = content_type.get_object_for_this_type(id=item['object_id'])
             mas_vendidos.append({
                 'producto': producto,
                 'total_vendido': item['total_vendido']
             })
-        except:
+        except ContentType.DoesNotExist:
+            continue 
+        except content_type.model_class().DoesNotExist:
             continue
 
     context = {
@@ -272,20 +288,36 @@ def resumenInventario(request):
 def exportar_excel(request):
     wb = openpyxl.Workbook()
     sheet = wb.active
-    sheet.title = 'Productos'
+    sheet.title = 'Más Vendidos'
 
-    headers = ['ID', 'Nombre', 'Descripción', 'Precio', 'Stock']
+    headers = ['ID', 'Nombre', 'Descripción', 'Precio', 'Stock', 'Total Vendido']
     sheet.append(headers)
 
+    mas_vendidos_data = (
+        DetalleOrden.objects
+        .values('content_type', 'object_id')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:5]
+    )
 
-    productos = Producto.objects.all()
-    for producto in productos:
-        sheet.append([producto.id, producto.nombre, producto.descripcion, producto.precio, producto.stock])
+    for item in mas_vendidos_data:
+        try:
+            content_type = ContentType.objects.get_for_id(item['content_type'])
+            producto = content_type.get_object_for_this_type(id=item['object_id'])
 
+            sheet.append([
+                producto.id,
+                producto.nombre,
+                producto.descripcion,
+                producto.precio,
+                producto.stock,
+                item['total_vendido']
+            ])
+        except (ContentType.DoesNotExist, content_type.model_class().DoesNotExist):
+            continue
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=productos.xlsx'
-
+    response['Content-Disposition'] = 'attachment; filename=mas_vendidos.xlsx'
     wb.save(response)
     return response
 

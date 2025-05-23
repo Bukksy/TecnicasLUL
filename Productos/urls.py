@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name='Productos'
+
 urlpatterns = [
     path('', views.productos_view, name="productos_views"),
     path('agregar/', views.agregar, name='agregar'),
