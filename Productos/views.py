@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, Carrito, ItemCarrito, OrdenCompra, DetalleOrden, Categoria, Categoria_producto, OnepieceCards, PokemonCard
+from .models import *
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib.admin.views.decorators import staff_member_required
@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 import openpyxl
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
 
 def es_admin(user):
@@ -62,24 +63,10 @@ def productos_view(request):
     page_number = request.GET.get('page', '1')
     
     if page_number == '1':
-        productos = Producto.objects.filter(id__isnull=False).select_related('categoria', 'CategoriaProd').order_by('id')
-        productos_data = []
-        for carta in productos:
-            productos_data.append({
-                'id': carta.id,
-                'nombre': carta.nombre,
-                'descripcion': carta.descripcion,
-                'imagen': carta.imagen,
-                'precio': carta.precio,
-                'stock': carta.stock,
-            })
-        context = {'productos': productos_data, 'current_page': 1}
+        onepiececards = OnepieceCards.objects.all().order_by('id')
+        context = {'onepiececards': onepiececards, 'current_page': 1}
     
     elif page_number == '2':
-        onepiececards = OnepieceCards.objects.all().order_by('id')
-        context = {'onepiececards': onepiececards, 'current_page': 2}
-    
-    elif page_number == '3':
         pokemoncards = PokemonCard.objects.all().order_by('id')
         
         pokemon_pagina = []
@@ -94,7 +81,7 @@ def productos_view(request):
                 'precio': data.get('precio_local', 'N/A'),
                 'stock': data.get('stock_local', 'N/A'),
             })
-        context = {'pokemoncards': pokemon_pagina, 'current_page': 3}
+        context = {'pokemoncards': pokemon_pagina, 'current_page': 2}
     
     else:
         return redirect('/ruta/productos/?page=1')
@@ -104,89 +91,21 @@ def productos_view(request):
 @login_required
 @user_passes_test(es_admin)
 def agregar(request):
-    categoria = Categoria.objects.all()
-    categoriaprod = Categoria_producto.objects.all()
-    if request.method == 'POST':
-        nombre = request.POST['nombre']
-        descripcion = request.POST['descripcion']
-        categoria_id = request.POST['categoria']
-        categoriaprod_id = request.POST['categoriaprod']
-        precio = request.POST['precio']
-        stock = request.POST['stock']
-        imagen = request.FILES.get('imagen')
-
-        producto = Producto.objects.create(
-            nombre=nombre,
-            descripcion=descripcion,
-            categoria_id=categoria_id,
-            CategoriaProd_id=categoriaprod_id,
-            precio=precio,
-            stock=stock,
-            imagen=imagen
-        )
-
-        return redirect('Productos:productos_views')
-
-    return render(request, 'add_prod.html', {
-        'categoria': categoria,
-        'categoriaprod': categoriaprod
-    })
+    return render(request, 'add_prod.html')
 
 @login_required
 @user_passes_test(es_admin)
 def editar(request):
-    productos = Producto.objects.all()
-    categorias = Categoria.objects.all()
-    categorias_prod = Categoria_producto.objects.all()
-
-    if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        return redirect('Productos:editar_producto', id=producto_id)
-
-    return render(request, 'mod_prod.html', {
-        'productos': productos,
-        'categorias': categorias,
-        'categorias_prod': categorias_prod
-    })
+    return render(request, 'mod_prod.html')
 
 @login_required
 @user_passes_test(es_admin)
 def editar_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    categorias = Categoria.objects.all()
-    categorias_prod = Categoria_producto.objects.all()
-
-    if request.method == 'POST':
-        producto.nombre = request.POST['nombre']
-        producto.descripcion = request.POST['descripcion']
-        producto.precio = request.POST['precio']
-        producto.stock = request.POST['stock']
-
-        categoria_id = request.POST.get('categoria')
-        categoriaprod_id = request.POST.get('categoriaprod')
-        
-        if categoria_id:
-            producto.categoria = Categoria.objects.get(id=categoria_id)
-        if categoriaprod_id:
-            producto.CategoriaProd = Categoria_producto.objects.get(id=categoriaprod_id)
-
-        if request.FILES.get('imagen'):
-            producto.imagen = request.FILES['imagen']
-        
-        producto.save()
-        return redirect('Productos:productos_views')
-
-    return render(request, 'edit_prod_form.html', {
-        'producto': producto,
-        'categorias': categorias,
-        'categorias_prod': categorias_prod
-    })
+    return render(request, 'edit_prod_form.html')
 
 @login_required
 @user_passes_test(es_admin)
 def eliminar_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    producto.delete()
     return redirect('Productos:productos_views')
 
 @login_required
@@ -199,22 +118,62 @@ def historial_ordenes(request):
 def ver_carrito(request):
     carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
     productos_carrito = carrito.items.all()
-    
+
     carrito_total = 0
     for item in productos_carrito:
+        producto = item.producto
+        clase_producto = producto.__class__.__name__
+
+        if clase_producto == 'PokemonCard':
+            item.nombre = producto.data.get('name', 'Sin nombre')
+            precios = producto.data.get('prices', {})
+            item.precio_local = producto.data.get('precio_local') or precios.get('holofoil') or precios.get('normal') or 0
+            item.precio = item.precio_local
+            item.stock_local = producto.data.get('stock_local', 0)
+            item.stock = item.stock_local
+
+        elif clase_producto == 'OnepieceCards':
+            item.nombre = producto.nombre
+            item.precio_local = producto.precio_local or producto.precio or 0
+            item.precio = item.precio_local
+            item.stock_local = producto.stock
+            item.stock = producto.stock
+
+        elif clase_producto == 'Producto':
+            item.nombre = producto.nombre
+            item.precio_local = producto.precio
+            item.precio = producto.precio
+            item.stock_local = producto.stock
+            item.stock = producto.stock
+
+        else:
+            item.nombre = 'Producto desconocido'
+            item.precio_local = 0
+            item.precio = 0
+            item.stock_local = 0
+            item.stock = 0
+
         carrito_total += item.subtotal
 
     context = {
-        'carrito': carrito,
         'productos_carrito': productos_carrito,
         'carrito_total': carrito_total,
     }
     return render(request, 'carrito/ver_carrito.html', context)
 
-@login_required
+
 def agregar_al_carrito(request, tipo_producto, producto_id):
+    if not request.user.is_authenticated:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'redirect': reverse('Home:login'),
+                'message': 'Debes iniciar sesión para agregar productos al carrito.'
+            }, status=401)
+        else:
+            messages.error(request, 'Debes iniciar sesión para agregar productos al carrito.')
+            return redirect('Home:login') 
+
     modelos = {
-        'producto': Producto,
         'onepiececard': OnepieceCards,
         'pokemoncard': PokemonCard,
     }
@@ -276,8 +235,19 @@ def confirmar_compra(request):
     items = carrito.items.all()
 
     for item in items:
-        if item.cantidad > item.producto.stock:
-            messages.error(request, f'Stock insuficiente para {item.producto.nombre}.')
+        producto = item.producto
+
+        if hasattr(producto, 'stock_local') and producto.stock_local is not None:
+            stock_disponible = producto.stock_local
+        elif hasattr(producto, 'stock') and producto.stock is not None:
+            stock_disponible = producto.stock
+        elif isinstance(producto, PokemonCard):
+            stock_disponible = producto.data.get('stock_local', 0)
+        else:
+            stock_disponible = 0
+
+        if item.cantidad > stock_disponible:
+            messages.error(request, f'Stock insuficiente para {item.nombre if hasattr(item, "nombre") else str(producto)}.')
             return redirect('Productos:ver_carrito')
 
     orden = OrdenCompra.objects.create(usuario=request.user, total=0)
@@ -285,13 +255,27 @@ def confirmar_compra(request):
 
     for item in items:
         producto = item.producto
-        producto.stock -= item.cantidad
-        producto.save()
 
-        if hasattr(producto, 'precio_local') and producto.precio_local:
+        if hasattr(producto, 'stock_local') and producto.stock_local is not None:
+            producto.stock_local -= item.cantidad
+            producto.save(update_fields=['stock_local'])
+        elif hasattr(producto, 'stock') and producto.stock is not None:
+            producto.stock -= item.cantidad
+            producto.save(update_fields=['stock'])
+        elif isinstance(producto, PokemonCard):
+            stock_actual = producto.data.get('stock_local', 0)
+            nuevo_stock = max(stock_actual - item.cantidad, 0)
+            producto.data['stock_local'] = nuevo_stock
+            producto.save()
+
+        if hasattr(producto, 'precio_local') and producto.precio_local is not None:
             precio_unitario = producto.precio_local
-        else:
+        elif hasattr(producto, 'precio') and producto.precio is not None:
             precio_unitario = producto.precio
+        elif isinstance(producto, PokemonCard):
+            precio_unitario = producto.data.get('precio_local', 0)
+        else:
+            precio_unitario = 0
 
         DetalleOrden.objects.create(
             orden=orden,
@@ -308,8 +292,6 @@ def confirmar_compra(request):
     items.delete()
 
     return redirect('Productos:compra_exitosa')
-
-
 
 def compra_exitosa(request):
     return render(request, 'carrito/compra_exitosa.html')

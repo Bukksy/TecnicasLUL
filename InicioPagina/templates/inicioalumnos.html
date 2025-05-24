@@ -51,12 +51,6 @@
 
     <div class="sidebar">
         <a href="{% url 'InicioClientes:inicio' %}" class="activo">Inicio</a>
-        <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()">Productos ▾</a>
-        <div id="submenu" class="submenu">
-            <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
-            <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
-            <a href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
-        </div>
         <a href="{% url 'VentasProductos:cartas_pokemon' %}">Cartas Pokemon</a>
         <a href="{% url 'VentasProductos:cartas_onepiece' %}">Cartas OnePiece</a>
     </div>
@@ -69,15 +63,7 @@
         <br>
         <div class="container">
             <div>
-                <a href="{% url 'VentasProductos:todo' %}">
-                    <div class="content">
-                        <h2>Nuevos Productos</h2>
-                        <span>Descubre las novedades</span>
-                    </div>
-                </a>
-            </div>
-            <div>
-                <a href="{% url 'VentasProductos:pokemon' %}">
+                <a href="{% url 'VentasProductos:cartas_pokemon' %}">
                     <div class="content">
                         <h2>Pokemon TCG</h2>
                         <span>Compra tus cajas favoritas</span>
@@ -85,7 +71,7 @@
                 </a>
             </div>
             <div>
-                <a href="{% url 'VentasProductos:onepiece' %}">
+                <a href="{% url 'VentasProductos:cartas_onepiece' %}">
                     <div class="content">
                         <h2>One Piece TCG</h2>
                         <span>Nuevas colecciones de One Piece</span>
@@ -93,7 +79,7 @@
                 </a>
             </div>
             <div>
-                <a href="{% url 'VentasProductos:todo' %}">
+                <a href="#">
                     <div class="content">
                         <h2>Ver todo</h2>
                         <span>Revisa todos nuestros productos</span>

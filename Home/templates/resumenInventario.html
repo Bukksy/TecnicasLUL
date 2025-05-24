@@ -165,13 +165,21 @@
                     <tr>
                         <th>Producto</th>
                         <th>Cantidad Vendida</th>
+                        <th>Venta Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in mas_vendidos %}
                         <tr>
-                            <td>{{ item.producto.nombre }}</td>
+                            <td>
+                                {% if item.producto.nombre %}
+                                    {{ item.producto.nombre }}
+                                {% else %}
+                                    {{ item.producto }}
+                                {% endif %}
+                            </td>
                             <td>{{ item.total_vendido|floatformat:0|intcomma }}</td>
+                            <td>${{ item.venta_total|floatformat:0|intcomma }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

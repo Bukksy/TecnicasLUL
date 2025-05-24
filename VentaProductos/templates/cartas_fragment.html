@@ -2,8 +2,8 @@
 <div class="contenedor-cartas" id="cartas-container">
   <div class="row">
     {% for carta in cartas %}
-      <div class="col" style="margin-top: 20px;">
-        <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm" style="margin-top: 20px;">
+        <div class="card shadow-sm">
           <img src="{{ carta.images.small }}" loading="lazy" class="card-img-top" alt="{{ carta.name }}">
           <div class="card-body">
             <h5 class="card-title" style="font-size: 10px;">{{ carta.name }}</h5>
@@ -11,6 +11,14 @@
             <p class="card-text"><strong>Rareza:</strong> {{ carta.rarity|default:"N/A" }}</p>
             <p class="card-text"><strong>Precio:</strong> ${{ carta.precio|default:"N/A"|floatformat:0|intcomma }}</p>
             <p class="card-text"><strong>Stock:</strong> {{ carta.stock }}</p>
+            <form id="form-compra-{{ carta.id }}" action="{% url 'Productos:agregar_al_carrito' 'pokemoncard' carta.id %}" method="post" class="d-flex gap-2 align-items-center">
+                {% csrf_token %}
+                <input type="number" name="cantidad" min="1" max="{{ carta.stock }}" value="1" required
+                    class="form-control form-control-sm" style="height: 50px;">
+                <button type="submit" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
+                    Comprar
+                </button>
+            </form>
             <button class="btn btn-outline-primary btn-sm mt-2"
                 onclick="openModal('${carta.id}', '${carta.nombre}', '${carta.rareza}', '${carta.set}', '${carta.precio}', '${carta.stock}', '${carta.imagen}')">
                 Ver más

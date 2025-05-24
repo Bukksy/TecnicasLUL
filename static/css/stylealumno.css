@@ -25,16 +25,14 @@
       background: url("/static/img/share-fb.jpg")
         no-repeat 50% / cover;
     }
+
     &:nth-of-type(2) {
-      background: url("/static/img/D_NQ_NP_789675-MLC76554848379_052024-O-pokemon-tcg-sobre-10-cartas-edicion-151-espanol-original.webp")
-        no-repeat 50% / cover;
-    }
-    &:nth-of-type(3) {
       background: url("/static/img/A17788.avif")
         no-repeat 50% / cover;
     }
-    &:nth-of-type(4) {
-      background: url("/static/img/logotipo-lujo-tcg-corona-iniciales-elegantes-logotipo-letra-tcg-marcas-exclusivas-carta-monograma-tcg-empresas-alta-gama_1101554-51523.avif")
+
+    &:nth-of-type(3) {
+      background: url("/static/img/best-trading-card-games-2024.webp")
         no-repeat 50% / cover;
     }
 

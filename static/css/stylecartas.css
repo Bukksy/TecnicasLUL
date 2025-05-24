@@ -26,7 +26,7 @@
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.12);
-    width: 280px; /* un poco más pequeña */
+    width: 280px; 
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;

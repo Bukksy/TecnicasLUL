@@ -52,20 +52,6 @@ def filtrar_cartas_onepiece(request):
         'cantidad': cartas.count(),
     })
 
-def onepiece(request):
-    categoria = get_object_or_404(Categoria, nombre='One Piece')
-    productos = Producto.objects.filter(categoria=categoria)
-    return render(request, 'onepiece.html', {'productos': productos})
-
-def pokemon(request):
-    categoria = get_object_or_404(Categoria, nombre='Pokemon')
-    productos = Producto.objects.filter(categoria=categoria)
-    return render(request, 'Pokemon.html', {'productos': productos})
-
-def todo(request):
-    productos = Producto.objects.all()
-    return render(request, 'Todo.html', {'productos': productos})
-
 def cartas_pokemon(request):
     cartas = PokemonCard.objects.all().order_by('id')
 

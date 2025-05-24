@@ -43,13 +43,6 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         <a href="{% url 'InicioClientes:inicio' %}">Inicio</a>
-        <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()">Productos ▾</a>
-        <div id="submenu" class="submenu">
-            <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
-            <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
-            <a href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
-        </div>
-        
         <a href="{% url 'VentasProductos:cartas_pokemon' %}">Cartas Pokemon</a>
         <a href="{% url 'VentasProductos:cartas_onepiece' %}" class="activo">Cartas OnePiece</a>
         <a style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
@@ -109,8 +102,8 @@
                 <p id="modalDescripcion"></p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+           <div class="modal-footer justify-content-center border-0 pt-0 pb-3">
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4 rounded-pill" data-bs-dismiss="modal">Cerrar</button>
             </div>
             </div>
         </div>
@@ -121,6 +114,35 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/onepiececards.js' %}"></script>
     <script>
+        function agregarAlCarrito(tipoProducto, productoId, cantidad = 1) {
+            fetch(`/productos/carrito/agregar/${tipoProducto}/${productoId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `cantidad=${cantidad}`
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    return response.json().then(data => {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '¡Atención!',
+                            text: data.message,
+                            confirmButtonText: 'Iniciar sesión',
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                window.location.href = data.redirect;
+                            }
+                        });
+                    });
+                } else if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+
        function openModal(id, nombre, descripcion, tipo, precio_local, stock, imagenUrl) {
         document.getElementById('modalNombre').textContent = nombre;
         document.getElementById('modalDescripcion').textContent = descripcion;

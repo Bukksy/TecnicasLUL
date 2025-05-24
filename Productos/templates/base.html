@@ -59,17 +59,12 @@
             <a href="{% url 'Productos:historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
                 <i class="bi bi-clock-history"></i> Historial de órdenes
             </a>
+            <a style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
         </nav>
         {% else %}
         <!-- SIDEBAR -->
         <div class="sidebar">
             <a href="{% url 'InicioClientes:inicio' %}">Inicio</a>
-            <a style="cursor: pointer; color: white;" onclick="toggleSubmenu()">Productos ▾</a>
-            <div id="submenu" class="submenu">
-                <a href="{% url 'VentasProductos:pokemon' %}">TCG Pokémon</a>
-                <a href="{% url 'VentasProductos:onepiece' %}">One Piece</a>
-                <a href="{% url 'VentasProductos:todo' %}">Ver Todo</a>
-            </div>
             <a class="activo" style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
             <a href="{% url 'VentasProductos:cartas_pokemon' %}">Cartas Pokemon</a>
             <a href="{% url 'VentasProductos:cartas_onepiece' %}">Cartas OnePiece</a>

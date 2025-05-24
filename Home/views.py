@@ -156,29 +156,14 @@ def register_view(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_staff = False  # Asegura que no es staff
-            user.is_superuser = False  # Asegura que no es admin
+            user.is_staff = False 
+            user.is_superuser = False
             user.save()
-            auth_login(request, user)  # Iniciar sesión automáticamente
-            return redirect('InicioClientes:inicio')  # Cambia por tu vista principal
+            auth_login(request, user)
+            return redirect('InicioClientes:inicio')
     else:
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
-
-def obtener_productos_normales():
-    productos = Producto.objects.all()
-    productos_con_total = []
-    total_stock = 0
-    valor_total = 0
-
-    for p in productos:
-        total = p.precio * p.stock
-        productos_con_total.append({'producto': p, 'total': total, 'es_api': False})
-        total_stock += p.stock
-        valor_total += total
-    
-    return productos, productos_con_total, total_stock, valor_total
-
 
 def obtener_cartas_onepiece():
     cartas_op = OnepieceCards.objects.all()
@@ -227,18 +212,17 @@ def obtener_cartas_pokemon():
 
     return pokemon_cartas, productos_con_total, total_stock, valor_total, datos_pokemon
 
-
+@login_required
 def resumenInventario(request):
-    productos, prod_normales, stock_normales, valor_normales = obtener_productos_normales()
     cartas_op, prod_onepiece, stock_onepiece, valor_onepiece = obtener_cartas_onepiece()
     pokemons, prod_pokemon, stock_pokemon, valor_pokemon, datos_pokemon = obtener_cartas_pokemon()
     ordenes = OrdenCompra.objects.prefetch_related('detalles__producto').all()
 
-    productos_con_total = prod_normales + prod_onepiece + prod_pokemon
+    productos_con_total = prod_onepiece + prod_pokemon
 
-    total_productos = productos.count() + cartas_op.count() + pokemons.count()
-    stock_total = stock_normales + stock_onepiece + stock_pokemon
-    valor_total_stock = valor_normales + valor_onepiece + valor_pokemon
+    total_productos = cartas_op.count() + pokemons.count()
+    stock_total = stock_onepiece + stock_pokemon
+    valor_total_stock = valor_onepiece + valor_pokemon
 
     labels = [p['producto'].nombre if not isinstance(p['producto'], dict) else p['producto']['nombre'] for p in productos_con_total]
     datos_stock = [p['producto'].stock if not isinstance(p['producto'], dict) else 1 for p in productos_con_total]
@@ -266,7 +250,6 @@ def resumenInventario(request):
 
     context = {
         'productos_con_total': productos_con_total,
-        'productos': productos,
         'total_productos': total_productos,
         'stock_total': stock_total,
         'valor_total_stock': valor_total_stock,

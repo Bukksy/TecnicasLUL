@@ -105,6 +105,7 @@
         <a href="{% url 'Productos:historial_ordenes' %}" class="{% if request.path == '/historial-ordenes/' %}activo{% endif %}">
             <i class="bi bi-clock-history"></i> Historial de órdenes
         </a>
+        <a style="position: absolute; margin-top: 880px; background-color: orange; width: 250px; color: white;" href="{% url 'Productos:ver_carrito' %}">Carrito</a>
     </nav>
 
 
@@ -113,52 +114,7 @@
         <hr>
 
     <div style="margin-left: -15px;">
-        {% if current_page == 1 %}
-            <div class="container-fluid" style="max-height: 750px; overflow-y: auto;">
-                <table class="table table-hover table-striped align-middle" style="width: 1600px;">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="text-align: center;">Nombre</th>
-                            <th style="text-align: center;">Descripción</th>
-                            <th style="text-align: center;">Precio</th>
-                            <th style="text-align: center;">Stock</th>
-                            <th style="text-align: center;">Ver mas</th>
-                            <th style="text-align: center;">Comprar</th>
-                            <th style="text-align: center; width: 150px;">Eliminar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for producto in productos %}
-                        <tr class="text-center">
-                            <td>{{ producto.nombre }}</td>
-                            <td>{{ producto.descripcion }}</td>
-                            <td>$ {{ producto.precio|floatformat:0|intcomma }}</td>
-                            <td style="text-align: center;">{{ producto.stock }}</td>
-                            <td style="width: 50px;">
-                                <div class="d-flex justify-content-center">
-                                    <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm" onclick="openModal('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.descripcion }}', '{{ producto.precio }}', '{{ producto.stock }}', '{{ producto.imagen.url }}')">Ver más</button>
-                                    
-                                </div>
-                            </td>
-                            <td style="width: 350px;">
-                                <form id="form-compra-{{ producto.id }}" action="{% url 'Productos:agregar_al_carrito' 'producto' producto.id %}" method="post" class="d-flex gap-2 align-items-center">
-                                    {% csrf_token %}
-                                    <input type="number" name="cantidad" min="1" max="{{ producto.stock }}" value="1" required
-                                        class="form-control form-control-sm" style="height: 50px;">
-                                    <button type="submit" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">
-                                        Comprar
-                                    </button>
-                                </form>
-                            </td>
-                            <td style="display: grid; justify-content: center; align-items: center;">
-                                <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ producto.id }}')">Eliminar</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% elif current_page == 2 %}
+            {% if current_page == 1 %}
                 <h2 class="titulos" style="font-size: 50px; text-align: start;">Onepiece Cards</h2>
                 <div class="container-fluid" style="max-height: 500px; overflow-y: auto;">
                     <table class="table table-hover table-striped align-middle">
@@ -211,7 +167,7 @@
                     </table>
                 </div>
 
-            {% elif current_page == 3 %}
+            {% else %}
                 <h2 class="titulos" style="font-size: 50px; text-align: start;">Pokemon Cards</h2>
                 <div class="container-fluid" style="max-height: 500px;overflow-y: auto;">
                     <table class="table table-hover table-striped align-middle" style="width: 1600px;" >
@@ -263,7 +219,6 @@
             <div class="pagination">
                 <a href="?page=1" class="{% if current_page == 1 %}active{% endif %}">1</a>
                 <a href="?page=2" class="{% if current_page == 2 %}active{% endif %}">2</a>
-                <a href="?page=3" class="{% if current_page == 3 %}active{% endif %}">3</a>
             </div>
 
     <!-- Modal -->

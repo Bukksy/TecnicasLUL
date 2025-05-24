@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-LOGIN_URL = 'login'
+LOGIN_URL = 'Home:login'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db' 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

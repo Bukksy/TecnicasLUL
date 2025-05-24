@@ -11,6 +11,7 @@
                     <th>Producto</th>
                     <th>Cantidad</th>
                     <th>Precio unitario</th>
+                    <th>Stock disponible</th>
                     <th>Subtotal</th>
                     <th>Acción</th>
                 </tr>
@@ -18,24 +19,23 @@
             <tbody>
                 {% for item in productos_carrito %}
                 <tr>
-                    <td>{{ item.producto.nombre }}</td>
+                    <td>{{ item.nombre }}</td>
                     <td>{{ item.cantidad }}</td>
                     <td>
-                        {% if item.producto.precio_local %}
-                            ${{ item.producto.precio_local|floatformat:0 }}
+                        {% if item.precio_local %}
+                            ${{ item.precio_local|floatformat:0 }}
                         {% else %}
-                            ${{ item.producto.precio|floatformat:0 }}
+                            ${{ item.precio|floatformat:0 }}
                         {% endif %}
                     </td>
                     <td>
-                        {% if item.producto.precio_local %}
-                            ${{ item.subtotal|floatformat:0 }}
-                        {% elif item.producto.precio %}
-                            ${{ item.subtotal|floatformat:0 }}
+                        {% if item.stock_local %}
+                            {{ item.stock_local }}
                         {% else %}
-                            No disponible
+                            {{ item.stock }}
                         {% endif %}
                     </td>
+                    <td>${{ item.subtotal|floatformat:0 }}</td>
                     <td>
                         <form action="{% url 'Productos:eliminar_del_carrito' item.id %}" method="post" class="d-inline">
                             {% csrf_token %}

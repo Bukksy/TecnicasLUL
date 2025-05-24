@@ -3,31 +3,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nombre
-    
-class Categoria_producto(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nombre
-
-class Producto(models.Model):
-    nombre = models.CharField(max_length=255)
-    descripcion = models.TextField(blank=True, null=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
-    CategoriaProd = models.ForeignKey(Categoria_producto, on_delete=models.SET_NULL, null=True, blank=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveIntegerField(default=0)
-    imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre
-    
-
 class Carrito(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     creado = models.DateTimeField(auto_now_add=True)
@@ -48,10 +23,12 @@ class ItemCarrito(models.Model):
         return self.cantidad * self.get_precio()
 
     def get_precio(self):
-        if hasattr(self.producto, 'precio') and self.producto.precio is not None:
-            return self.producto.precio
-        elif hasattr(self.producto, 'precio_local') and self.producto.precio_local is not None:
+        if hasattr(self.producto, 'precio_local') and self.producto.precio_local is not None:
             return self.producto.precio_local
+        elif hasattr(self.producto, 'precio') and self.producto.precio is not None:
+            return self.producto.precio
+        elif isinstance(self.producto, PokemonCard):
+            return self.producto.data.get('precio_local', 0) 
         return 0
 
     def __str__(self):
