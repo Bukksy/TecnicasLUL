@@ -5,9 +5,7 @@ app_name='Productos'
 
 urlpatterns = [
     path('', views.productos_view, name="productos_views"),
-    path('agregar/', views.agregar, name='agregar'),
-    path('editar/', views.editar, name='editar'),
-    path('editar/<int:id>/', views.editar_producto, name='editar_producto'),
+    path('agregar/', views.agregar_producto, name='agregar_producto'),
     path('eliminar/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
     path('historial/', views.historial_ordenes, name='historial_ordenes'),
     path('exportar_historial_excel/', views.exportar_historial_excel, name='exportar_historial_excel'),
@@ -17,4 +15,5 @@ urlpatterns = [
     path('carrito/vaciar/', views.vaciar_carrito, name='vaciar_carrito'),
     path('carrito/confirmar/', views.confirmar_compra, name='confirmar_compra'),
     path('carrito/compra-exitosa/', views.compra_exitosa, name='compra_exitosa'),
+     path('modificar/', views.modificar_producto, name='modificar_producto'),
 ]

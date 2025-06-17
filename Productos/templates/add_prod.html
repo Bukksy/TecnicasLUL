@@ -7,69 +7,175 @@
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style-añadir.css' %}">
+    <script>
+        function mostrarCampos() {
+            const categoria = document.getElementById('categoria').value;
+            document.getElementById('campos-pokemon').style.display = categoria === 'pokemon' ? 'block' : 'none';
+            document.getElementById('campos-onepiece').style.display = categoria === 'onepiece' ? 'block' : 'none';
+        }
+    </script>
 </head>
 <body>
-
-<div class="container my-5">
+    <div class="container my-5">
     <div class="card">
-        <div class="card-body">
-            <h3 class="mb-4">Formulario para Agregar Producto</h3>
-            <form method="POST" enctype="multipart/form-data" action="{% url 'Productos:agregar' %}">
+        <div class="card-body" >
+            <h3 class="mb-4">Agregar Carta</h3>
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
 
+                <!-- Categoría -->
                 <div class="mb-3">
-                    <label for="nombre" class="form-label">Nombre del Producto</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción</label>
-                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="categoria" class="form-label">Categoría</label>
-                    <select class="form-control" id="categoria" name="categoria" required>
+                    <label class="form-label">Categoría</label>
+                    <select class="form-control" id="categoria" name="categoria" onchange="mostrarCampos()" data-required="true">
                         <option value="">Seleccione una categoría</option>
-                        {% for cat in categoria %}
-                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
-                        {% endfor %}
+                        <option value="pokemon">Pokémon</option>
+                        <option value="onepiece">One Piece</option>
                     </select>
                 </div>
 
-                <div class="mb-3">
-                    <label for="categoriaprod" class="form-label">Categoría del Producto</label>
-                    <select class="form-control" id="categoriaprod" name="categoriaprod" required>
-                        <option value="">Seleccione una categoría de producto</option>
-                        {% for cp in categoriaprod %}
-                            <option value="{{ cp.id }}">{{ cp.nombre }}</option>
-                        {% endfor %}
-                    </select>
+                <!-- CAMPOS POKÉMON -->
+                <div id="campos-pokemon" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombrepk" data-required="true">
+                    </div>
+                    <div class="mb-3">
+                        <label for="select-set" class="form-label">Set</label>
+                        <select id="select-set" name="set" class="form-control" data-required="true">
+                            <option value="">Selecciona un set</option>
+                            {% for set in sets_pokemon %}
+                                <option value="{{ set }}">{{ set }}</option>
+                            {% endfor %}
+                            <option value="nuevo">Agregar nuevo set</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Rareza</label>
+                            <select id="select-rareza" name="rareza" class="form-control" data-required="true">
+                                <option value="">Selecciona una rareza</option>
+                                {% for rareza in rareza_pokemon %}
+                                    <option value="{{ rareza }}">{{ rareza }}</option>
+                                {% endfor %}
+                                <option value="nuevo">Agregar nueva rareza</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio</label>
+                            <input type="number" class="form-control" name="precio_local_pk" step="1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" name="stock_local_pk">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Imagen (archivo)</label>
+                            <input type="file" class="form-control" name="imagen">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="precio" class="form-label">Precio</label>
-                    <input type="number" class="form-control" id="precio" name="precio" step="1" required>
+                <!-- CAMPOS ONE PIECE -->
+                <div id="campos-onepiece" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" data-required="true">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="select-descripcion" class="form-label">Set</label>
+                            <select id="select-descripcion" name="descripcion" class="form-control" data-required="true">
+                                <option value="">Selecciona un set</option>
+                                {% for descripcion in descripcion_onepiece %}
+                                    <option value="{{ descripcion }}">{{ descripcion }}</option>
+                                {% endfor %}
+                            </select> 
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="select-tipo" class="form-label">Tipo</label>
+                            <select id="select-tipo" name="tipo" class="form-control" data-required="true">
+                                <option value="">Selecciona un tipo</option>
+                                {% for tipo in tipos_onepiece %}
+                                    <option value="{{ tipo }}">{{ tipo }}</option>
+                                {% endfor %}
+                            </select> 
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio</label>
+                            <input type="number" class="form-control" name="precio_local_op" step="1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" name="stock_op">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Imagen (archivo)</label>
+                            <input type="file" class="form-control" name="imagen">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="stock" class="form-label">Stock</label>
-                    <input type="number" class="form-control" id="stock" name="stock" required>
+                <!-- Botones -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Agregar Carta</button>
+                    <a href="{% url 'Productos:productos_views' %}"><button type="button" style="margin-top: 0px;" class="btn btn-secondary ms-2">Volver</button></a>
+                    
                 </div>
-
-                <div class="mb-3">
-                    <label for="imagen" class="form-label">Imagen del Producto</label>
-                    <input type="file" class="form-control" id="imagen" name="imagen">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Agregar Producto</button>
-                <p class="random my-2 text-center">- o -</p>
-                <button type="button" class="btn btn-secondary" onclick="history.back()">Volver</button>
             </form>
         </div>
     </div>
 </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>document.querySelector('form').addEventListener('submit', () => alert('Formulario enviado'));</script>
+    <script>
+        function mostrarCampos() {
+            const categoria = document.getElementById("categoria").value;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            const camposPokemon = document.getElementById("campos-pokemon");
+            const camposOnepiece = document.getElementById("campos-onepiece");
+
+            camposPokemon.style.display = "none";
+            camposOnepiece.style.display = "none";
+
+            camposPokemon.querySelectorAll("[required]").forEach(el => el.required = false);
+            camposOnepiece.querySelectorAll("[required]").forEach(el => el.required = false);
+
+            if (categoria === "pokemon") {
+                camposPokemon.style.display = "block";
+                camposPokemon.querySelectorAll("[data-required='true']").forEach(el => el.required = true);
+            } else if (categoria === "onepiece") {
+                camposOnepiece.style.display = "block";
+                camposOnepiece.querySelectorAll("[data-required='true']").forEach(el => el.required = true);
+            }
+        }
+    </script>
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
+                title: '{{ message.tags|capfirst }}',
+                text: '{{ message|escapejs }}',
+                confirmButtonColor: '#3085d6'
+            });
+        {% endfor %}
+    </script>
+    {% endif %}
 </body>
 </html>

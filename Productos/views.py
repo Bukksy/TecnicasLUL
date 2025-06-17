@@ -8,6 +8,7 @@ import openpyxl
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.core.files.storage import default_storage
 
 
 def es_admin(user):
@@ -63,11 +64,16 @@ def productos_view(request):
     page_number = request.GET.get('page', '1')
     
     if page_number == '1':
+        onepiece_prods = onepieceprods.objects.all().order_by('id')
         onepiececards = OnepieceCards.objects.all().order_by('id')
-        context = {'onepiececards': onepiececards, 'current_page': 1}
+
+        productos_unificadosop = list(onepiececards) + list(onepiece_prods)
+
+        context = {'productosop': productos_unificadosop, 'current_page': 1}
     
     elif page_number == '2':
         pokemoncards = PokemonCard.objects.all().order_by('id')
+        pokemon_prods = pokemonprods.objects.all().order_by('id')
         
         pokemon_pagina = []
         for carta in pokemoncards:
@@ -80,9 +86,22 @@ def productos_view(request):
                 'imagen': data.get('images', {}).get('small', ''),
                 'precio': data.get('precio_local', 'N/A'),
                 'stock': data.get('stock_local', 'N/A'),
+                'tipo_origen': 'pokemoncard', 
             })
-        context = {'pokemoncards': pokemon_pagina, 'current_page': 2}
-    
+
+        for prod in pokemon_prods:
+            pokemon_pagina.append({
+                'id': prod.id,
+                'nombre': prod.nombre,
+                'rareza': prod.rareza,
+                'set': prod.set,
+                'imagen': prod.imagen.url if prod.imagen else '',
+                'precio': prod.precio if prod.precio is not None else 'N/A',
+                'stock': prod.stock,
+                'tipo_origen': 'pokemonprod',
+            })
+
+        context = {'pokemon_pagina': pokemon_pagina, 'current_page': 2}
     else:
         return redirect('/ruta/productos/?page=1')
 
@@ -90,22 +109,136 @@ def productos_view(request):
 
 @login_required
 @user_passes_test(es_admin)
-def agregar(request):
-    return render(request, 'add_prod.html')
+def agregar_producto(request):
+    if request.method == 'POST':
+        print("✅ POST recibido")
+        categoria = request.POST.get('categoria')
+
+        if categoria == 'pokemon':
+            nombrepk = request.POST.get('nombrepk', '').strip()
+            set_nombre = request.POST.get('set', '').strip()
+            rareza = request.POST.get('rareza', '').strip()
+            precio = request.POST.get('precio_local_pk', '').strip()
+            stock = request.POST.get('stock_local_pk', '').strip()
+            imagen_archivo = request.FILES.get('imagen')
+            
+            print("Nombre:", nombrepk)
+            print("set:", set_nombre)
+            print("rareza:", rareza)
+
+            if not (nombrepk and set_nombre and rareza):
+                messages.error(request, 'Debes completar nombre, set y rareza.')
+                return redirect('Productos:agregar_producto')
+
+            pokemonprods.objects.create(
+                nombre=nombrepk,
+                set=set_nombre,
+                rareza=rareza,
+                precio=int(precio) if precio else None,
+                stock=int(stock) if stock else 0,
+                imagen=imagen_archivo
+            )
+            messages.success(request, 'Producto Pokémon guardado correctamente.')
+
+        
+
+        elif categoria == 'onepiece':
+            nombre = request.POST.get('nombre', '').strip()
+            descripcion = request.POST.get('descripcion', '').strip()
+            tipo = request.POST.get('tipo', '').strip()
+            precio = request.POST.get('precio_local_op', '').strip()
+            stock = request.POST.get('stock_op', '').strip()
+            imagen_archivo = request.FILES.get('imagen')
+
+            if not (nombre and descripcion and tipo):
+                messages.error(request, 'Debes completar nombre, descripción y tipo.')
+                return redirect('Productos:agregar_producto')
+
+            onepieceprods.objects.create(
+                nombre=nombre,
+                descripcion=descripcion,
+                tipo=tipo,
+                precio=int(precio) if precio else None,
+                stock=int(stock) if stock else 0,
+                imagen=imagen_archivo
+            )
+            messages.success(request, 'Producto One Piece guardado correctamente.')
+
+        else:
+            messages.error(request, 'Categoría no válida.')
+
+        return redirect('Productos:agregar_producto')
+
+    # Parte GET: mostrar datos existentes para los selects
+    onepiececards = OnepieceCards.objects.all().order_by('id')
+    pokemoncards = PokemonCard.objects.all().order_by('id')
+
+    sets_pokemon = sorted(set(
+        getattr(card, 'data', {}).get('set', {}).get('name', 'N/A')
+        for card in pokemoncards if getattr(card, 'data', {}).get('set')
+    ))
+
+    rareza_set = set()
+    for carta in pokemoncards:
+        data = getattr(carta, 'data', {})
+        rareza = data.get('rarity')
+        if rareza:
+            rareza_set.add(rareza)
+    rareza_lista = sorted(list(rareza_set))
+
+    descripcion_onepiece = sorted(set(
+        card.descripcion for card in onepiececards if card.descripcion
+    ))
+
+    tipos_onepiece = sorted(set(
+        card.tipo for card in onepiececards if card.tipo
+    ))
+
+    pokemon_pagina = []
+    for carta in pokemoncards:
+        data = getattr(carta, 'data', {})
+        pokemon_pagina.append({
+            'id': carta.id,
+            'nombre': data.get('name', 'N/A'),
+            'rareza': data.get('rarity', 'N/A'),
+            'set': data.get('set', {}).get('name', 'N/A'),
+            'imagen': data.get('images', {}).get('small', ''),
+            'precio': data.get('precio_local', 'N/A'),
+            'stock': data.get('stock_local', 'N/A'),
+        })
+
+    context = {
+        'pokemoncards': pokemon_pagina,
+        'onepiececards': onepiececards,
+        'sets_pokemon': sets_pokemon,
+        'tipos_onepiece': tipos_onepiece,
+        'rareza_pokemon': rareza_lista,
+        'descripcion_onepiece': descripcion_onepiece,
+    }
+
+    return render(request, 'add_prod.html', context)
+
+def modificar_producto(request):
+    return redirect('Productos:productos_views')
 
 @login_required
 @user_passes_test(es_admin)
-def editar(request):
-    return render(request, 'mod_prod.html')
+def eliminar_producto(request, id, categoria):
+    if categoria == 'pokemon':
+        modelo = pokemonprods
+    elif categoria == 'onepiece':
+        modelo = onepieceprods
+    else:
+        messages.error(request, "Categoría inválida.")
+        return redirect('Productos:productos_views')
 
-@login_required
-@user_passes_test(es_admin)
-def editar_producto(request, id):
-    return render(request, 'edit_prod_form.html')
+    try:
+        producto = modelo.objects.get(id=id)
+        producto.delete()
+        messages.success(request, f"Producto {categoria.capitalize()} eliminado correctamente.")
+    except modelo.DoesNotExist:
+        messages.error(request, f"Producto {categoria.capitalize()} no encontrado.")
 
-@login_required
-@user_passes_test(es_admin)
-def eliminar_producto(request, id):
     return redirect('Productos:productos_views')
 
 @login_required
@@ -295,3 +428,4 @@ def confirmar_compra(request):
 
 def compra_exitosa(request):
     return render(request, 'carrito/compra_exitosa.html')
+

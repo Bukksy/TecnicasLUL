@@ -126,20 +126,28 @@
                                 <th style="text-align: center;">Stock</th>
                                 <th style="text-align: center;">Ver más</th>
                                 <th style="text-align: center;">Comprar</th>
+                                <th style="text-align: center;">Modificar</th>
                                 <th style="text-align: center;">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for card in onepiececards %}
+                            {% for card in productosop %}
                             <tr class="text-center">
                                 <td>{{ card.nombre }}</td>
                                 <td>{{ card.descripcion }}</td>
-                                <td>$ {{ card.precio_local|floatformat:0|intcomma }}</td>
+                                <td>
+                                    $ 
+                                    {% if card.precio_local %}
+                                        {{ card.precio_local|floatformat:0|intcomma }}
+                                    {% else %}
+                                        {{ card.precio|floatformat:0|intcomma }}
+                                    {% endif %}
+                                </td>
                                 <td>{{ card.stock }}</td>
                                 <td style="width: 50px;">
                                     <div class="d-flex justify-content-center">
                                         <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
-                                            onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{{ card.imagen.url }}')">
+                                            onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{% if card.imagen %}{{ card.imagen.url|escapejs }}{% else %}''{% endif %}')">
                                             Ver más
                                         </button>
                                     </div>
@@ -153,6 +161,9 @@
                                             Comprar
                                         </button>
                                     </form>
+                                </td>
+                                <td>
+                                    
                                 </td>
                                 <td style="display: grid; justify-content: center; align-items: center;">
                                     <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
@@ -179,11 +190,12 @@
                                 <th style="text-align: center;">Stock</th>
                                 <th style="text-align: center;">Ver más</th>
                                 <th style="text-align: center;">Comprar</th>
+                                <th style="text-align: center;">Modificar</th>
                                 <th style="text-align: center; width: 150px;">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for card in pokemoncards %}
+                            {% for card in pokemon_pagina %}
                             <tr class="text-center">
                                 <td >{{ card.nombre }}</td>                         
                                 <td>{{ card.set }}</td>
@@ -206,6 +218,9 @@
                                             Comprar
                                         </button>
                                     </form>
+                                </td>
+                                <td>
+                                    
                                 </td>
                                 <td style="display: grid; justify-content: center; align-items: center;">
                                     <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
@@ -246,37 +261,16 @@
         </div>
     </div>
 
+
     <div class="botones">
-        <a href="{% url 'Productos:agregar' %}">
+        <a href="{% url 'Productos:agregar_producto' %}">
             <button id="agregar">Agregar Producto</button>
-        </a> 
-        <a href="{% url 'Productos:editar' %}">
-            <button id="modificar">Modificar Productos</button>
         </a> 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-    function confirmarCompra(cardId) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "¿Deseas agregar este producto al carrito?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, agregar',
-            cancelButtonText: 'No, cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('form-compra-' + cardId).submit();
-            }
-        });
-    }
-    </script>
     <script>
         function agregarAlCarrito(event, productoId) {
             event.preventDefault();

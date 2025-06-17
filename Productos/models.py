@@ -59,7 +59,6 @@ class DetalleOrden(models.Model):
 
     def subtotal(self):
         return self.cantidad * self.precio_unitario
-    
 
 
 class OnepieceCards(models.Model):
@@ -112,4 +111,21 @@ class DetalleOrdenPokemon(models.Model):
 
     def subtotal(self):
         return self.cantidad * self.precio_unitario
+    
+class onepieceprods(models.Model):
+    nombre = models.CharField(max_length=255)
+    descripcion = models.CharField(max_length=255)
+    tipo = models.CharField(max_length=255)
+    stock = models.PositiveIntegerField(default=0)
+    precio = models.IntegerField(blank=True, null=True)
+    imagen = models.ImageField(upload_to='onepiece/', blank=True, null=True)
+
+class pokemonprods(models.Model):
+    nombre = models.CharField(max_length=255)
+    set = models.CharField(max_length=255)
+    rareza = models.CharField(max_length=255)
+    stock = models.PositiveIntegerField(default=0)
+    precio = models.IntegerField(blank=True, null=True)
+    imagen = models.ImageField(upload_to='pokemon/', blank=True, null=True)
+
     
