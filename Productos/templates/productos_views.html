@@ -124,9 +124,8 @@
                                 <th style="text-align: center;">Descripción</th>
                                 <th style="text-align: center;">Precio</th>
                                 <th style="text-align: center;">Stock</th>
-                                <th style="text-align: center;">Ver más</th>
+                                <th style="text-align: center;">Editar</th>
                                 <th style="text-align: center;">Comprar</th>
-                                <th style="text-align: center;">Modificar</th>
                                 <th style="text-align: center;">Eliminar</th>
                             </tr>
                         </thead>
@@ -148,7 +147,7 @@
                                     <div class="d-flex justify-content-center">
                                         <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
                                             onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.descripcion }}', '{{ card.precio_local }}', '{{ card.stock }}', '{% if card.imagen %}{{ card.imagen.url|escapejs }}{% else %}''{% endif %}')">
-                                            Ver más
+                                            Editar
                                         </button>
                                     </div>
                                 </td>
@@ -162,11 +161,9 @@
                                         </button>
                                     </form>
                                 </td>
-                                <td>
-                                    
-                                </td>
+
                                 <td style="display: grid; justify-content: center; align-items: center;">
-                                    <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
+                                    <button class="btn btn-danger btn-sm"onclick="confirmarEliminacion('{{ card.id }}', '{{ categoria }}', '{{ card.tipo_origen }}')">Eliminar unidad</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -181,23 +178,32 @@
             {% else %}
                 <h2 class="titulos" style="font-size: 50px; text-align: start;">Pokemon Cards</h2>
                 <div class="container-fluid" style="max-height: 500px;overflow-y: auto;">
-                    <table class="table table-hover table-striped align-middle" style="width: 1600px;" >
+                    <table class="table table-hover table-striped align-middle" style="width: 1600px;">
                         <thead class="table-dark">
                             <tr>
                                 <th style="text-align: center;">Nombre</th>
                                 <th style="text-align: center;">Descripción</th>
                                 <th style="text-align: center;">Precio</th>
                                 <th style="text-align: center;">Stock</th>
-                                <th style="text-align: center;">Ver más</th>
+                                <th style="text-align: center;">Editar</th>
                                 <th style="text-align: center;">Comprar</th>
-                                <th style="text-align: center;">Modificar</th>
                                 <th style="text-align: center; width: 150px;">Eliminar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="pokemon-tbody">
+                            <!-- Spinner fila visible mientras carga -->
+                            <tr id="spinner-row">
+                                <td colspan="7" style="text-align: center; padding: 40px;">
+                                    <div class="spinner-border" role="status" style="width: 3rem; height: 3rem;">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Aquí irán las filas de datos, ocultas inicialmente -->
                             {% for card in pokemon_pagina %}
-                            <tr class="text-center">
-                                <td >{{ card.nombre }}</td>                         
+                            <tr class="text-center pokemon-row" style="display:none;">
+                                <td>{{ card.nombre }}</td>
                                 <td>{{ card.set }}</td>
                                 <td>$ {{ card.precio|floatformat:0|intcomma }}</td>
                                 <td>{{ card.stock }}</td>
@@ -205,7 +211,7 @@
                                     <div class="d-flex justify-content-center">
                                         <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
                                             onclick="openModal('{{ card.id }}', '{{ card.nombre }}', '{{ card.rareza }}', '{{ card.precio }}', '{{ card.stock }}', '{{ card.imagen }}')">
-                                            Ver más
+                                            Editar
                                         </button>
                                     </div>
                                 </td>
@@ -219,16 +225,19 @@
                                         </button>
                                     </form>
                                 </td>
-                                <td>
-                                    
-                                </td>
                                 <td style="display: grid; justify-content: center; align-items: center;">
-                                    <button style="height: 50px; width: 150px;" class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}')">Eliminar</button>
+                                    <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion('{{ card.id }}', '{{ categoria }}', '{{ card.tipo_origen }}')">Eliminar unidad</button>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                    <div class="text-center mt-3">
+                        <button id="ver-mas-btn" class="btn btn-primary">Ver más</button>
+                        <div id="loading-spinner" style="display: none; margin-top: 10px;">
+                            <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
             <div class="pagination">
@@ -236,26 +245,46 @@
                 <a href="?page=2" class="{% if current_page == 2 %}active{% endif %}">2</a>
             </div>
 
-    <!-- Modal -->
     <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productoModalLabel">Información del Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-sm">
+                <div class="modal-header bg-primary text-white">
+                    <div>
+                        <h5 class="modal-title mb-0" id="productoModalLabel">Información del Producto</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body d-flex">
-                    <!-- Sección de imagen -->
-                    <div class="modal-image-container">
-                        <img id="modalProductoImagen" src="" alt="Imagen del Producto" class="img-fluid">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img id="modalProductoImagen" src="" alt="Imagen del Producto" class="img-fluid rounded shadow-sm mb-3" style="max-height: 900px; margin-top: 33px">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="modalProductoNombreInput" class="form-label">Nombre del producto</label>
+                                <input type="text" id="modalProductoNombreInput" class="form-control" placeholder="Nombre del producto" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalProductoDescripcionInput" class="form-label">Descripción</label>
+                                <textarea id="modalProductoDescripcionInput" class="form-control" rows="3" placeholder="Descripción"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalProductoPrecioInput" class="form-label">Precio</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="modalProductoPrecioInput" class="form-control" placeholder="Precio" min="0" />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="modalProductoStockInput" class="form-label">Stock</label>
+                                <input type="number" id="modalProductoStockInput" class="form-control" placeholder="Stock" min="0" />
+                            </div>
+                        </div>
                     </div>
-                    <!-- Sección de información -->
-                    <div class="modal-info-container ms-4">
-                        <h3 id="modalProductoNombre"></h3>
-                        <p id="modalProductoDescripcion"></p>
-                        <p><strong>Precio:</strong> $<span id="modalProductoPrecio"></span></p>
-                        <p><strong>Stock:</strong> <span id="modalProductoStock"></span></p>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarCambios()">Guardar cambios</button>
                 </div>
             </div>
         </div>
@@ -271,6 +300,78 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const isPokemonPage = window.location.search.includes('page=2');
+            if (!isPokemonPage) return;
+
+            let offset = {{ pokemon_pagina|length }};
+            const limit = 60;
+            let loading = false;
+
+            document.getElementById('spinner-row').style.display = 'none';
+            document.querySelectorAll('.pokemon-row').forEach(row => row.style.display = '');
+
+            document.getElementById('ver-mas-btn').addEventListener('click', function () {
+                if (loading) return;
+                loading = true;
+                document.getElementById('spinner-row').style.display = '';
+
+                fetch(`/productos/?page=2&offset=${offset}&limit=${limit}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.results || data.results.length === 0) {
+                        document.getElementById('ver-mas-btn').style.display = 'none';
+                        return;
+                    }
+
+                    const tbody = document.getElementById('pokemon-tbody');
+                    data.results.forEach(card => {
+                        const tr = document.createElement('tr');
+                        tr.classList.add('text-center', 'pokemon-row');
+                        tr.innerHTML = `
+                            <td>${card.nombre}</td>
+                            <td>${card.set}</td>
+                            <td>$ ${parseInt(card.precio).toLocaleString('es-CL')}</td>
+                            <td>${card.stock}</td>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button style="width: 100px; height: 50px;" class="btn btn-warning btn-sm"
+                                        onclick="openModal('${card.id}', '${card.nombre}', '${card.rareza}', '${card.precio}', '${card.stock}', '${card.imagen}')">
+                                        Editar
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <form id="form-compra-${card.id}" action="/productos/agregar_al_carrito/${card.tipo_origen}/${card.id}/" method="post" class="d-flex gap-2 align-items-center">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    <input type="number" name="cantidad" min="1" max="${card.stock}" value="1" required class="form-control form-control-sm" style="height: 50px;">
+                                    <button type="button" onclick="confirmarCompra('${card.id}')" class="btn btn-success btn-sm" style="height: 50px; width: 150px;">Comprar</button>
+                                </form>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion('${card.id}', 'pokemon', '${card.tipo_origen}')">Eliminar unidad</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    offset += data.results.length;
+                    if (!data.has_more) {
+                        document.getElementById('ver-mas-btn').style.display = 'none';
+                    }
+                })
+                .finally(() => {
+                    loading = false;
+                    document.getElementById('spinner-row').style.display = 'none';
+                });
+            });
+        });
+    </script>
     <script>
         function agregarAlCarrito(event, productoId) {
             event.preventDefault();
@@ -332,22 +433,76 @@
         });
 
         function openModal(id, nombre, descripcion, precio, stock, imagen) {
-            // Llenar la información en el modal
-            document.getElementById('modalProductoNombre').innerText = nombre;
-            document.getElementById('modalProductoDescripcion').innerText = descripcion;
-            document.getElementById('modalProductoPrecio').innerText = precio;
-            document.getElementById('modalProductoStock').innerText = stock;
+            window.productoIdEnEdicion = id;
+
+            document.getElementById('modalProductoNombreInput').value = nombre;
+            document.getElementById('modalProductoDescripcionInput').value = descripcion;
+            document.getElementById('modalProductoPrecioInput').value = precio;
+            document.getElementById('modalProductoStockInput').value = stock;
             document.getElementById('modalProductoImagen').src = imagen;
 
-            // Mostrar el modal
             var myModal = new bootstrap.Modal(document.getElementById('productoModal'));
             myModal.show();
         }
 
-        function confirmarEliminacion(idProducto) {
+        function guardarCambios() {
+            const id = window.productoIdEnEdicion;
+            const nombre = document.getElementById('modalProductoNombreInput').value.trim();
+            const descripcion = document.getElementById('modalProductoDescripcionInput').value.trim();
+            const precio = document.getElementById('modalProductoPrecioInput').value;
+            const stock = document.getElementById('modalProductoStockInput').value;
+            const tipo_origen = window.tipoOrigenProducto || 'pokemonprod';
+
+            if (!nombre || !descripcion || precio < 0 || stock < 0) {
+                alert('Complete todos los campos correctamente.');
+                return;
+            }
+
+            fetch(`/productos/editar/${id}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify({
+                    id: id,
+                    tipo_origen: tipo_origen,
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    precio: precio,
+                    stock: stock
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Producto actualizado',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    const myModalEl = document.getElementById('productoModal');
+                    const modal = bootstrap.Modal.getInstance(myModalEl);
+                    modal.hide();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error || 'No se pudo actualizar el producto',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al actualizar:', error);
+                alert('Error al actualizar producto.');
+            });
+        }
+
+        function confirmarEliminacion(id, categoria, tipo_origen) {
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "¡Esta acción no se puede deshacer!",
+                text: "¡Se eliminará una unidad del stock!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -356,8 +511,8 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    let baseUrl = "{% url 'Productos:eliminar_producto' 0 %}".replace("0", idProducto);
-                    window.location.href = baseUrl;
+                    let url = `/productos/eliminar/${id}/${categoria}/${tipo_origen}/`;
+                    window.location.href = url;
                 }
             });
         }

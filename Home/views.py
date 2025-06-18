@@ -131,7 +131,6 @@ def obtener_clima_y_pronostico(ciudad="Santiago"):
         'error': None,
     }
 
-
 @login_required
 def inicio(request):
     datos_clima = obtener_clima_y_pronostico()
@@ -145,7 +144,6 @@ def inicio(request):
         return render(request, 'inicio.html', contexto)
     else:
         return redirect('InicioClientes:inicio')
-
 
 def logout_view(request):
     logout(request)

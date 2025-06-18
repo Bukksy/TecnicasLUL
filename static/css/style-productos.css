@@ -8,7 +8,7 @@
     src: url('../fonts/Krisha-Regular.otf') format('OpenType');
 }
 
-#titulo{
+#titulo {
     font-family: 'Fuente1';
     font-size: 20px;
 }
@@ -18,7 +18,7 @@
     max-height: 80vh;
 }
 
-.titulos{
+.titulos {
     font-family: 'Fuente2';
     font-size: 80px;
     background: linear-gradient(to bottom, #424242, #212121);
@@ -26,13 +26,13 @@
     -webkit-text-fill-color: transparent;
 }
 
-/* Sidebar fijo */
 body {
     display: flex;
     margin-top: 50px;
     min-height: 100vh;
     overflow-x: hidden;
 }
+
 .sidebar {
     width: 240px;
     background-color: #343a40;
@@ -41,10 +41,11 @@ body {
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 56px; /* Altura navbar */
+    top: 56px;
     bottom: 0;
     padding-top: 1rem;
 }
+
 .sidebar a {
     color: #adb5bd;
     padding: 12px 20px;
@@ -56,6 +57,7 @@ body {
     border-left: 4px solid transparent;
     transition: background-color 0.3s, border-color 0.3s;
 }
+
 .sidebar a:hover,
 .sidebar a.activo {
     background-color: #495057;
@@ -71,24 +73,21 @@ body {
     min-height: calc(100vh - 56px);
 }
 
-/* Tarjetas estilo bootstrap */
 .card-title {
     font-weight: 600;
     color: #212529;
 }
 
-/* Tabla centrada */
-.table th, .table td {
+.table th,
+.table td {
     text-align: center;
     vertical-align: middle;
 }
 
-/* Export button */
 .export-btn {
     margin-bottom: 1rem;
 }
 
-/* Ajustes para mobile */
 @media (max-width: 768px) {
     .sidebar {
         position: relative;
@@ -119,42 +118,43 @@ body {
     padding: 10px 20px;
 }
 
-/* Estilo por defecto del enlace activo */
 .sidebar .activo {
     background-color: #555;
     color: white;
 }
 
-/* Los enlaces cambian de fondo cuando el mouse pasa sobre ellos */
 .sidebar a:hover {
     background-color: #555;
     color: white;
 }
 
 .modal-dialog {
-    align-items: center;
+    display: flex;
     justify-content: center;
-    display: grid;
-    max-width: 600px; /* Puedes ajustar el tamaño máximo si lo deseas */
-    margin: auto; /* Centrar el modal horizontalmente */
-    top: 20%; /* Posicionar el modal verticalmente en el centro */
-    left: 0%;
+    align-items: center;
+    max-width: 900px;
+    margin: 1.75rem auto;
 }
 
-/* Estilo para el contenedor del modal */
 .modal-body {
-    display: flex; /* Flexbox para poner la imagen y la información en línea */
-    justify-content: space-between; /* Espacio entre la imagen y la información */
-    align-items: center; /* Centrado vertical */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
-/* Estilo para la imagen */
+.modal-image-container {
+    flex: 0 0 40%;
+    max-width: 40%;
+}
+
 .modal-image-container img {
-    max-width: 100%; /* La imagen se ajusta al tamaño del contenedor */
-    max-height: 300px; /* Limitar la altura máxima de la imagen */
-    object-fit: cover; /* Asegura que la imagen se ajuste sin perder proporciones */
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
 }
-
 
 .modal-info-container {
     flex: 1;
@@ -171,7 +171,7 @@ body {
     margin-bottom: 10px;
 }
 
-#boton{
+#boton {
     background-color: orange;
     border: none;
     box-shadow: 1px 1px 5px black;
@@ -185,28 +185,23 @@ body {
     width: 100%;
     height: 50px;
     gap: 10px;
-
     align-items: center;
     justify-content: center;
-
     left: 120px;
     z-index: 9999;
 }
 
-
-.botones button{
+.botones button {
     padding: 15px;
     text-align: center;
-
     border-radius: 20px;
     box-shadow: 0px 5px 3px black;
 }
 
-#agregar{
+#agregar {
     background-color: #9bfab0;
-
 }
 
-#modificar{
+#modificar {
     background-color: orange;
 }

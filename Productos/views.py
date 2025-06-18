@@ -8,7 +8,8 @@ import openpyxl
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.core.files.storage import default_storage
+from django.http import JsonResponse, HttpResponseBadRequest
+import json
 
 
 def es_admin(user):
@@ -62,54 +63,72 @@ def exportar_historial_excel(request):
 @user_passes_test(es_admin)
 def productos_view(request):
     page_number = request.GET.get('page', '1')
-    
+
     if page_number == '1':
         onepiece_prods = onepieceprods.objects.all().order_by('id')
         onepiececards = OnepieceCards.objects.all().order_by('id')
-
         productos_unificadosop = list(onepiececards) + list(onepiece_prods)
 
         context = {'productosop': productos_unificadosop, 'current_page': 1}
-    
+        return render(request, 'productos_views.html', context)
+
     elif page_number == '2':
+        offset = int(request.GET.get('offset', 0))
+        limit = int(request.GET.get('limit', 60))
+
         pokemoncards = PokemonCard.objects.all().order_by('id')
         pokemon_prods = pokemonprods.objects.all().order_by('id')
-        
-        pokemon_pagina = []
-        for carta in pokemoncards:
+        total = pokemoncards.count() + pokemon_prods.count()
+
+        all_data = []
+
+        for carta in pokemoncards[offset:offset+limit]:
             data = getattr(carta, 'data', {})
-            pokemon_pagina.append({
+            all_data.append({
                 'id': carta.id,
                 'nombre': data.get('name', 'N/A'),
                 'rareza': data.get('rarity', 'N/A'),
                 'set': data.get('set', {}).get('name', 'N/A'),
-                'imagen': data.get('images', {}).get('small', ''),
+                'imagen': data.get('images', {}).get('large', ''),
                 'precio': data.get('precio_local', 'N/A'),
                 'stock': data.get('stock_local', 'N/A'),
-                'tipo_origen': 'pokemoncard', 
+                'tipo_origen': 'pokemoncard',
             })
 
-        for prod in pokemon_prods:
-            pokemon_pagina.append({
-                'id': prod.id,
-                'nombre': prod.nombre,
-                'rareza': prod.rareza,
-                'set': prod.set,
-                'imagen': prod.imagen.url if prod.imagen else '',
-                'precio': prod.precio if prod.precio is not None else 'N/A',
-                'stock': prod.stock,
-                'tipo_origen': 'pokemonprod',
+        restantes = limit - len(all_data)
+        if restantes > 0:
+            prod_offset = max(0, offset - pokemoncards.count())
+            for prod in pokemon_prods[prod_offset:prod_offset+restantes]:
+                all_data.append({
+                    'id': prod.id,
+                    'nombre': prod.nombre,
+                    'rareza': prod.rareza,
+                    'set': prod.set,
+                    'imagen': prod.imagen.url if prod.imagen else '',
+                    'precio': prod.precio if prod.precio is not None else 'N/A',
+                    'stock': prod.stock,
+                    'tipo_origen': 'pokemonprod',
+                })
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'results': all_data,
+                'has_more': (offset + limit) < total
             })
 
-        context = {'pokemon_pagina': pokemon_pagina, 'current_page': 2}
-    else:
-        return redirect('/ruta/productos/?page=1')
+        context = {
+            'pokemon_pagina': all_data,
+            'current_page': 2,
+            'total': total,
+        }
+        return render(request, 'productos_views.html', context)
 
-    return render(request, 'productos_views.html', context)
+    return redirect('/productos/?page=1')
+
 
 @login_required
 @user_passes_test(es_admin)
-def agregar_producto(request):
+def agregar_producto(request, id):
     if request.method == 'POST':
         print("✅ POST recibido")
         categoria = request.POST.get('categoria')
@@ -140,7 +159,6 @@ def agregar_producto(request):
             )
             messages.success(request, 'Producto Pokémon guardado correctamente.')
 
-        
 
         elif categoria == 'onepiece':
             nombre = request.POST.get('nombre', '').strip()
@@ -219,7 +237,74 @@ def agregar_producto(request):
     return render(request, 'add_prod.html', context)
 
 def modificar_producto(request):
-    return redirect('Productos:productos_views')
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Método no permitido')
+
+    try:
+        data = json.loads(request.body)
+
+        tipo_origen = data.get('tipo_origen')
+        id = data.get('id')
+        nombre = data.get('nombre', '').strip()
+        descripcion = data.get('descripcion', '')
+        precio = data.get('precio')
+        stock = data.get('stock')
+        rareza = data.get('rareza', '')
+        set_ = data.get('set', '')
+
+        # Validaciones básicas
+        if not id or not nombre or precio is None or stock is None:
+            return JsonResponse({'error': 'Datos incompletos'}, status=400)
+
+        if tipo_origen == 'pokemonprod':
+            producto = pokemonprods.objects.filter(id=id).first()
+            if not producto:
+                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+
+            producto.nombre = nombre
+            producto.rareza = rareza.strip()
+            producto.set = set_.strip()
+            producto.precio = int(precio)
+            producto.stock = int(stock)
+            producto.save()
+
+        elif tipo_origen == 'onepieceprod':
+            producto = onepieceprods.objects.filter(id=id).first()
+            if not producto:
+                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+
+            producto.nombre = nombre
+            producto.descripcion = descripcion.strip()
+            producto.precio = int(precio)
+            producto.stock = int(stock)
+            producto.save()
+
+        elif tipo_origen == 'pokemoncard':
+            producto = PokemonCard.objects.filter(id=id).first()
+            if not producto:
+                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+
+            producto.nombre = nombre
+            producto.rareza = rareza.strip()
+            producto.set = set_.strip()
+            producto.save()
+
+        elif tipo_origen == 'onepiececard':
+            producto = OnepieceCards.objects.filter(id=id).first()
+            if not producto:
+                return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+
+            producto.nombre = nombre
+            producto.descripcion = descripcion.strip()
+            producto.save()
+
+        else:
+            return JsonResponse({'error': 'Tipo de origen no válido'}, status=400)
+
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
 @user_passes_test(es_admin)
@@ -364,68 +449,80 @@ def vaciar_carrito(request):
 
 @login_required
 def confirmar_compra(request):
+    if request.method != 'POST':
+        messages.error(request, 'Método no permitido para esta operación.')
+        return redirect('Productos:ver_carrito')
+
     carrito = get_object_or_404(Carrito, usuario=request.user)
     items = carrito.items.all()
+
+    if not items.exists():
+        messages.warning(request, 'Tu carrito está vacío. No hay nada que comprar.')
+        return redirect('Productos:ver_carrito')
 
     for item in items:
         producto = item.producto
 
+        stock_disponible = 0
         if hasattr(producto, 'stock_local') and producto.stock_local is not None:
             stock_disponible = producto.stock_local
         elif hasattr(producto, 'stock') and producto.stock is not None:
             stock_disponible = producto.stock
         elif isinstance(producto, PokemonCard):
             stock_disponible = producto.data.get('stock_local', 0)
-        else:
-            stock_disponible = 0
 
         if item.cantidad > stock_disponible:
             messages.error(request, f'Stock insuficiente para {item.nombre if hasattr(item, "nombre") else str(producto)}.')
             return redirect('Productos:ver_carrito')
 
-    orden = OrdenCompra.objects.create(usuario=request.user, total=0)
-    total_compra = 0
+    try:
+        orden = OrdenCompra.objects.create(usuario=request.user, total=0)
+        total_compra = 0
 
-    for item in items:
-        producto = item.producto
+        for item in items:
+            producto = item.producto
 
-        if hasattr(producto, 'stock_local') and producto.stock_local is not None:
-            producto.stock_local -= item.cantidad
-            producto.save(update_fields=['stock_local'])
-        elif hasattr(producto, 'stock') and producto.stock is not None:
-            producto.stock -= item.cantidad
-            producto.save(update_fields=['stock'])
-        elif isinstance(producto, PokemonCard):
-            stock_actual = producto.data.get('stock_local', 0)
-            nuevo_stock = max(stock_actual - item.cantidad, 0)
-            producto.data['stock_local'] = nuevo_stock
-            producto.save()
+            if hasattr(producto, 'stock_local') and producto.stock_local is not None:
+                producto.stock_local -= item.cantidad
+                producto.save(update_fields=['stock_local'])
+            elif hasattr(producto, 'stock') and producto.stock is not None:
+                producto.stock -= item.cantidad
+                producto.save(update_fields=['stock'])
+            elif isinstance(producto, PokemonCard):
+                stock_actual = producto.data.get('stock_local', 0)
+                nuevo_stock = max(stock_actual - item.cantidad, 0)
+                producto.data['stock_local'] = nuevo_stock
+                producto.save(update_fields=['data'])
 
-        if hasattr(producto, 'precio_local') and producto.precio_local is not None:
-            precio_unitario = producto.precio_local
-        elif hasattr(producto, 'precio') and producto.precio is not None:
-            precio_unitario = producto.precio
-        elif isinstance(producto, PokemonCard):
-            precio_unitario = producto.data.get('precio_local', 0)
-        else:
             precio_unitario = 0
+            if hasattr(producto, 'precio_local') and producto.precio_local is not None:
+                precio_unitario = producto.precio_local
+            elif hasattr(producto, 'precio') and producto.precio is not None:
+                precio_unitario = producto.precio
+            elif isinstance(producto, PokemonCard):
+                precio_unitario = producto.data.get('precio_local', 0)
 
-        DetalleOrden.objects.create(
-            orden=orden,
-            producto=producto,
-            cantidad=item.cantidad,
-            precio_unitario=precio_unitario
-        )
+            DetalleOrden.objects.create(
+                orden=orden,
+                producto=producto,
+                cantidad=item.cantidad,
+                precio_unitario=precio_unitario
+            )
 
-        total_compra += item.cantidad * precio_unitario
+            total_compra += item.cantidad * precio_unitario
 
-    orden.total = total_compra
-    orden.save()
+        orden.total = total_compra
+        orden.save()
 
-    items.delete()
+        items.delete()
+        carrito.save()
 
-    return redirect('Productos:compra_exitosa')
+        messages.success(request, f'¡Tu compra de ${total_compra:.2f} ha sido confirmada con éxito!')
+        return redirect('Productos:compra_exitosa')
+    
+    except Exception as e:
+        messages.error(request, f'Hubo un error inesperado al procesar tu compra: {e}. Por favor, contacta a soporte.')
+        return redirect('Productos:ver_carrito')
 
 def compra_exitosa(request):
     return render(request, 'carrito/compra_exitosa.html')
-
